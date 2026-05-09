@@ -11,8 +11,8 @@ router.get('/google', passport.authenticate('google', {
 
 // Handle google callback
 router.get('/google/callback', passport.authenticate('google', {
-    failureRedirect: `${process.env.CLIENT_URL}/login-failed`,
-    successRedirect: `${process.env.CLIENT_URL}/dashboard`
+    failureRedirect: `${process.env.CLIENT_URI}/login-failed`,
+    successRedirect: `${process.env.CLIENT_URI}/dashboard`
 }));
 
 // check if user is logged-in
