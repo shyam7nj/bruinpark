@@ -1,122 +1,129 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useState } from 'react'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const API_URL = 'http://localhost:3001';
 
+function Home(){
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <main className="page">
+      <section className="card">
+        <h1>BruinPark</h1>
+        <p>
+          BruinPark helps commuter students save money by sharing parking permits by
+          matching users with non-overlapping parking schedules.
+        </p>
+
+        <a className="button" href={`${API_URL}/auth/google`}>
+          Log in with Google
+        </a>
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    </main>
+  );
 }
 
-export default App
+function LoginFailed(){
+  return(
+    <main className="page">
+      <section className="card">
+        <h1>Login Failed</h1>
+        <p>
+          Use a valid UCLA email address to successfully sign-up. 
+        </p>
+        
+        <a className="button secondary" href="/">
+          Back to home
+        </a>
+      </section>
+    </main>
+  );
+}
+
+function Dashboard(){
+  const [user, setUser] = useState(null);
+  const [status, setStatus] = useState('loading');
+
+  useEffect(() => {
+    fetch(`${API_URL}/auth/me`, {
+      credentials: 'include',
+    }).then(async(res) => {
+      if(!res.ok){
+        throw new Error('Not authenticated');
+      }
+      const data = await res.json();
+      setUser(data);
+      setStatus('Authenticated');
+    }).catch(() => {
+      setStatus('Unauthenticated');
+    });
+  }, []);
+
+  async function handleLogout(){
+    await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    window.location.href = '/';
+  }
+
+  if(status === 'loading'){
+    return(
+      <main className="page">
+        <section className="card">
+          <p>Loading dashboard</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (status === 'Unauthenticated') {
+    return (
+      <main className="page">
+        <section className="card">
+          <h1>Not logged in</h1>
+
+          <p>You need to log in before viewing the dashboard.</p>
+
+          <a className="button" href={`${API_URL}/auth/google`}>
+            Log in with Google
+          </a>
+        </section>
+      </main>
+    );
+  }
+
+  return(
+    <main className="page">
+      <section className="card">
+        <h1>Dashbaord</h1>
+
+        <p>Welcome: {user?.name || 'User'}</p>
+        <p>Email: {user?.email || 'No email found'}</p>
+
+        <hr />
+        <h2>Permit Status:</h2>
+        <p>Permit Verification coming soon :P</p>
+        
+        <button className="button secondary" onClick={handleLogout}>
+          Log Out
+        </button>
+      </section>
+    </main>
+  );
+}
+
+function App(){
+  const path = window.location.pathname;
+
+  if(path === '/dashboard'){
+    return <Dashboard />;
+  }
+  
+  if(path === '/login-failed'){
+    return <LoginFailed />
+  }
+
+  return <Home />
+}
+
+export default App;
+
