@@ -154,6 +154,10 @@ function Dashboard(){
          Create Parking Post
         </a>
 
+        <a className="button" href="/browse-posts">
+           Browse Parking Posts
+        </a>
+        
         <button className="button secondary" onClick={handleLogout}>
           Log Out
         </button>
@@ -289,6 +293,94 @@ function CreatePost() {
   );
 }
 
+function BrowsePosts() {
+  const [posts, setPosts] = useState([]);
+  const [parkingStructure, setParkingStructure] = useState('');
+  const [message, setMessage] = useState('');
+
+  async function fetchPosts(selectedStructure = '') {
+    setMessage('');
+
+    const query = selectedStructure
+      ? `?parkingStructure=${encodeURIComponent(selectedStructure)}`
+      : '';
+
+    const response = await fetch(`${API_URL}/api/posts${query}`, {
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setPosts(data);
+    } else {
+      const errorData = await response.json();
+      setMessage(errorData.error || 'Failed to load posts.');
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  function handleFilterChange(event) {
+    const selectedStructure = event.target.value;
+    setParkingStructure(selectedStructure);
+    fetchPosts(selectedStructure);
+  }
+
+  return (
+    <main className="page">
+      <section className="card wide-card">
+        <h1>Browse Parking Posts</h1>
+
+        <label>
+          Filter by parking structure
+          <select value={parkingStructure} onChange={handleFilterChange}>
+            <option value="">All structures</option>
+            <option value="Structure 2">Structure 2</option>
+            <option value="Structure 3">Structure 3</option>
+            <option value="Structure 4">Structure 4</option>
+            <option value="Structure 7">Structure 7</option>
+            <option value="Structure 8">Structure 8</option>
+          </select>
+        </label>
+
+        {message && <p>{message}</p>}
+
+        <div className="posts-list">
+          {posts.length === 0 && <p>No posts found.</p>}
+
+          {posts.map((post) => (
+            <article className="post-card" key={post._id}>
+              <h2>{post.parkingStructure}</h2>
+              <p>
+                Posted by: {post.owner?.name || 'Unknown user'}
+              </p>
+
+              <h3>Schedule</h3>
+              {Object.entries(post.schedule).map(([day, blocks]) => (
+                <p key={day}>
+                  <strong>{day}:</strong>{' '}
+                  {blocks.length > 0 ? blocks.join(', ') : 'none'}
+                </p>
+              ))}
+
+              {post.notes && (
+                <p>
+                  <strong>Notes:</strong> {post.notes}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+
+        <a className="button secondary" href="/dashboard">
+          Back to dashboard
+        </a>
+      </section>
+    </main>
+  );
+}
 
 function App(){
   const path = window.location.pathname;
@@ -305,6 +397,9 @@ function App(){
   return <CreatePost />;
 }
 
+if(path === '/browse-posts'){
+  return <BrowsePosts />;
+}
   return <Home />
 }
 
