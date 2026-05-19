@@ -239,3 +239,50 @@ h2 {
     bottom: 0.9rem;
   }
 }
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.post-form select,
+.post-form textarea {
+  padding: 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.post-form textarea {
+  min-height: 90px;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.schedule-day {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.schedule-day h3 {
+  margin-top: 0;
+  text-transform: capitalize;
+}
+
+.schedule-day label {
+  font-weight: 400;
+}
