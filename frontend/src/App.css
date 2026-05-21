@@ -317,3 +317,35 @@ h2 {
   border-radius: 8px;
   font: inherit;
 }
+
+.navbar {
+  min-height: 64px;
+  padding: 0 2rem;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  color: #fbbf24;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.navbar-links a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.navbar-links a:hover {
+  color: #fbbf24;
+}
