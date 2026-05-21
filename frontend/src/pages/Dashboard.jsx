@@ -1,85 +1,63 @@
-import { useEffect, useState } from 'react';
-import PageLayout from '../components/PageLayout';
 
-const API_URL = 'http://localhost:3001';
+import {useEffect, useState} from 'react';
 
-function Dashboard() {
+const API_URL = "http://localhost:3001";
+
+function Dashboard(){
   const [user, setUser] = useState(null);
-  const [status, setStatus] = useState('loading');
+  const [status, setStatus] = useState("Loading");
 
   useEffect(() => {
     fetch(`${API_URL}/auth/me`, {
-      credentials: 'include',
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error('Not authenticated');
-        }
+      credentials: "include",
+    }).then(async (response) => {
+      if(!response.ok){
+        throw new Error("Not Logged In");
+      }
 
-        const data = await res.json();
-        setUser(data);
-        setStatus('authenticated');
-      })
-      .catch(() => {
-        setStatus('unauthenticated');
-      });
+      const data = await response.json();
+      setUser(data);
+      setStatus("Authenticated");
+    }).catch(() => {
+      setStatus("Unauthenticated");
+    });
   }, []);
 
-  async function handleLogout() {
-    await fetch(`${API_URL}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    window.location.href = '/';
-  }
-
-  if (status === 'loading') {
-    return (
-      <PageLayout>
-        <p>Loading dashboard...</p>
-      </PageLayout>
+  if(status === "Loading"){
+    return(
+      <main className="dashboard-page">
+        <div className="dashboard-card">
+          <p>Loading Dashboard, hang tight...</p>
+        </div>
+      </main>
     );
   }
 
-  if (status === 'unauthenticated') {
-    return (
-      <PageLayout>
-        <h1>Not logged in</h1>
+  if(status === "Unauthenticated"){
+    return(
+      <main className="dashboard-page">
+        <div className="dashboard-card">
+          <h1>Not Logged In</h1>
+          <p>You need to login with your UCLA Google account before viewing your dashboard.</p>
 
-        <p>You need to log in before viewing the dashboard.</p>
-
-        <a className="button" href={`${API_URL}/auth/google`}>
-          Log in with Google
-        </a>
-      </PageLayout>
+          <a className="home-login-button" href={`${API_URL}/auth/google`}>
+            Log in with Google
+          </a>
+        </div>
+      </main>
     );
   }
 
-  return (
-    <PageLayout>
-      <h1>Dashboard</h1>
 
-      <p>Welcome: {user?.name || 'User'}</p>
-      <p>Email: {user?.email || 'No email found'}</p>
+  return(
+    <main className="dashboard-page">
+      <div className="dashboard-card">
+        <h1>Dashboard</h1>
 
-      <hr />
-
-      <h2>Permit Status</h2>
-      <p>Permit verification coming soon.</p>
-
-      <a className="button" href="/create-post">
-        Create Parking Post
-      </a>
-
-      <a className="button" href="/browse-posts">
-        Browse Parking Posts
-      </a>
-
-      <button className="button secondary" onClick={handleLogout}>
-        Log Out
-      </button>
-    </PageLayout>
+        <p>Welcome to your Dashboard, {user.name}.</p>
+        <p>Email: {user.email}</p>
+      </div>
+    </main>
   );
 }
 
