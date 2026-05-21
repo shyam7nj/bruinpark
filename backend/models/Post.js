@@ -1,28 +1,27 @@
 
 const mongoose = require('mongoose');
 
-const scheduleSchema = new mongoose.Schema({
-    monday: {
-        type: [String],
-        default: [],
+const scheduleSchema = new mongoose.Schema(
+  {
+    day: {
+      type: String,
+      required: true,
+      enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
     },
-    tuesday: {
-        type: [String],
-        default: [],
+
+    startTime: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    wednesday: {
-        type: [String],
-        default: [],
+
+    endTime: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    thursday: {
-        type: [String],
-        default: [],
-    },
-    friday: {
-        type: [String],
-        default: [],
-    },
-}, {_id: false}
+  },
+  { _id: false }
 );
 
 const postSchema = new mongoose.Schema({
@@ -38,10 +37,10 @@ const postSchema = new mongoose.Schema({
         trim: true,
     },
 
-    schedule: {
-        type: scheduleSchema,
+   schedule: {
+        type: [scheduleSchema],
         required: true,
-        default: () => ({}),    // Create an empty Schedule object if none is provided
+        default: [],
     },
 
     notes: {

@@ -42,8 +42,18 @@ router.post('/', requireAuth, async (req, res) =>{
         if(!parkingStructure){
             return res.status(400).json({error: "Parking structure is required."});
         }
-        else if(!schedule){
+        else if(!schedule || schedule.length === 0){
             return res.status(400).json({error: "On-campus schedule is required."});
+        }
+
+        for(const item of schedule){
+            if(!item.day || !item.startTime || !item.endTime){
+                return res.status(400).json({error: "Each schedule item needs a day, start time, and end time."});
+            }
+
+            if(item.startTime >= item.endTime){
+                return res.status(400).json({error: "Start time must be before end time."});
+            }
         }
         
         const post = await Post.create({
