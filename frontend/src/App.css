@@ -231,3 +231,73 @@ body {
 .schedule-list p {
   margin: 8px 0;
 }
+.browse-posts-page {
+  min-height: 100vh;
+  padding: 48px 24px;
+  background: #f5f8fc;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.browse-posts-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 48px;
+  background: #ffd100;
+  border-radius: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+
+.browse-posts-card h1 {
+  margin: 0;
+  font-size: 48px;
+  color: #2774ae;
+}
+
+.browse-posts-card p {
+  font-size: 20px;
+  color: #4b5563;
+}
+.posts-list {
+  margin-top: 28px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-card {
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.post-card h2 {
+  margin: 0 0 12px;
+  color: #2774ae;
+}
+
+.post-card p {
+  margin: 8px 0;
+  font-size: 18px;
+}
+
+.post-schedule {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f5f8fc;
+  border-radius: 12px;
+}
+
+.post-schedule h3 {
+  margin: 0 0 8px;
+  color: #172033;
+}
+
+.post-schedule p {
+  margin: 6px 0;
+}
