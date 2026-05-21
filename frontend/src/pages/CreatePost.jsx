@@ -9,6 +9,7 @@ function CreatePost() {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
+  const [message, setMessage] = useState('');
 
   function addScheduleItem(){
     if(!day || !startTime || !endTime){
@@ -25,6 +26,35 @@ function CreatePost() {
     setEndTime('');
   }
 
+  async function submitPost(event) {
+  event.preventDefault();
+
+  setMessage('');
+
+  const response = await fetch('http://localhost:3001/api/posts', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      parkingStructure,
+      schedule,
+      notes,
+    }),
+  });
+
+  if (response.ok) {
+    setMessage('Parking post created successfully!');
+
+    setParkingStructure('');
+    setNotes('');
+    setSchedule([]);
+  } else {
+    const data = await response.json();
+    setMessage(data.error || 'Failed to create parking post.');
+  }
+}
 
   return (
     <main className="create-post-page">
@@ -36,7 +66,7 @@ function CreatePost() {
           find compatible schedules.
         </p>
 
-        <form className="create-post-form">
+        <form className="create-post-form" onSubmit={submitPost}>
           <label>
             Parking Structure
             
@@ -112,6 +142,11 @@ function CreatePost() {
     ))}
   </div>
 </div>
+    <button className="home-login-button" type="submit">
+  Create Post
+</button>
+
+{message && <p>{message}</p>}
         </form>
       </div>
     </main>
