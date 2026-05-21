@@ -23,6 +23,14 @@ function Dashboard(){
     });
   }, []);
 
+  async function logout(){
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = '/';
+  }
+
   if(status === "Loading"){
     return(
       <main className="dashboard-page">
@@ -56,6 +64,20 @@ function Dashboard(){
 
         <p>Welcome to your Dashboard, {user.name}.</p>
         <p>Email: {user.email}</p>
+
+         <div className="dashboard-buttons">
+        <a className="home-login-button" href="/create-post">
+        Create Parking Post
+        </a>
+
+        <a className="home-login-button" href="/browse-posts">
+        Browse Parking Posts
+        </a>
+      </div>
+
+      <button className="dashboard-logout-button" onClick={logout}>
+        Log Out
+      </button>
       </div>
     </main>
   );
