@@ -18,8 +18,6 @@ const DAY_DISPLAY = {
   friday: 'Fri',
 };
 
-const MINUTES = ['00','05','10','15','20','25','30','35','40','45','50','55'];
-
 function formatTime(time) {
   if (!time) return '';
   const [hourStr, minute] = time.split(':');
@@ -28,58 +26,6 @@ function formatTime(time) {
   if (hour === 0) hour = 12;
   else if (hour > 12) hour -= 12;
   return `${hour}:${minute} ${ampm}`;
-}
-
-function toHHMM(hour, minute, ampm) {
-  let h = parseInt(hour, 10);
-  if (ampm === 'PM' && h !== 12) h += 12;
-  if (ampm === 'AM' && h === 12) h = 0;
-  return `${String(h).padStart(2, '0')}:${minute}`;
-}
-
-const selectStyle = {
-  padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit',
-};
-
-function TimePicker({ value, onChange, label }) {
-  function parseVal(val) {
-    if (!val) return { hour: '', minute: '', ampm: 'AM' };
-    const [hourStr, min] = val.split(':');
-    let h = parseInt(hourStr, 10);
-    const ap = h >= 12 ? 'PM' : 'AM';
-    if (h === 0) h = 12;
-    else if (h > 12) h -= 12;
-    return { hour: String(h), minute: min, ampm: ap };
-  }
-
-  const { hour, minute, ampm } = parseVal(value);
-
-  function handleChange(h, m, ap) {
-    if (h && m) onChange(toHHMM(h, m, ap));
-  }
-
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
-      {label}
-      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-        <select value={hour} onChange={(e) => handleChange(e.target.value, minute, ampm)} style={selectStyle}>
-          <option value="">Hr</option>
-          {[1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
-            <option key={h} value={String(h)}>{h}</option>
-          ))}
-        </select>
-        <span style={{ fontWeight: '700' }}>:</span>
-        <select value={minute} onChange={(e) => handleChange(hour, e.target.value, ampm)} style={selectStyle}>
-          <option value="">Min</option>
-          {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <select value={ampm} onChange={(e) => handleChange(hour, minute, e.target.value)} style={selectStyle}>
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
-      </div>
-    </label>
-  );
 }
 
 function SchedulePicker({ schedule, onChange }) {
@@ -140,8 +86,16 @@ function SchedulePicker({ schedule, onChange }) {
       </div>
 
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
-        <TimePicker label="Start" value={startTime} onChange={setStartTime} />
-        <TimePicker label="End" value={endTime} onChange={setEndTime} />
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
+          Start
+          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
+            style={{ padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit' }} />
+        </label>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
+          End
+          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
+            style={{ padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit' }} />
+        </label>
         <button
           type="button"
           onClick={addBlock}
