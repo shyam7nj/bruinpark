@@ -1,59 +1,68 @@
-import {useState} from 'react';
+import { useState } from 'react';
 
+const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+const DAY_MAP = {
+  Mon: 'monday',
+  Tue: 'tuesday',
+  Wed: 'wednesday',
+  Thu: 'thursday',
+  Fri: 'friday',
+};
 
 function CreatePost() {
   const [parkingStructure, setParkingStructure] = useState('');
   const [notes, setNotes] = useState('');
-  const [day, setDay] = useState('');
+  const [selectedDays, setSelectedDays] = useState([]);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
 
-  function addScheduleItem(){
-    if(!day || !startTime || !endTime){
+  function toggleDay(day) {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  }
+
+  function addScheduleItem() {
+    if (selectedDays.length === 0 || !startTime || !endTime) {
       return;
     }
 
-    const newScheduleItem = {
-      day, startTime, endTime,
-    };
+    const newItems = selectedDays.map((shortDay) => ({
+      day: DAY_MAP[shortDay],
+      startTime,
+      endTime,
+    }));
 
-    setSchedule([...schedule, newScheduleItem]);
-    setDay('');
+    setSchedule((prev) => [...prev, ...newItems]);
+    setSelectedDays([]);
     setStartTime('');
     setEndTime('');
   }
 
   async function submitPost(event) {
-  event.preventDefault();
+    event.preventDefault();
+    setMessage('');
 
-  setMessage('');
+    const response = await fetch('http://localhost:3001/api/posts', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parkingStructure, schedule, notes }),
+    });
 
-  const response = await fetch('http://localhost:3001/api/posts', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      parkingStructure,
-      schedule,
-      notes,
-    }),
-  });
-
-  if (response.ok) {
-    setMessage('Parking post created successfully!');
-
-    setParkingStructure('');
-    setNotes('');
-    setSchedule([]);
-  } else {
-    const data = await response.json();
-    setMessage(data.error || 'Failed to create parking post.');
+    if (response.ok) {
+      setMessage('Parking post created successfully!');
+      setParkingStructure('');
+      setNotes('');
+      setSchedule([]);
+    } else {
+      const data = await response.json();
+      setMessage(data.error || 'Failed to create parking post.');
+    }
   }
-}
 
   return (
     <main className="create-post-page">
@@ -68,10 +77,9 @@ function CreatePost() {
         <form className="create-post-form" onSubmit={submitPost}>
           <label>
             Parking Structure
-            
             <select
               value={parkingStructure}
-              onChange={(event) => setParkingStructure(event.target.value)}
+              onChange={(e) => setParkingStructure(e.target.value)}
             >
               <option value="">Select a structure</option>
               <option value="Structure 2">Structure 2</option>
@@ -83,71 +91,93 @@ function CreatePost() {
               <option value="Structure 11">Structure 11</option>
             </select>
           </label>
-         <p>Selected: {parkingStructure || "None Yet"}</p>
+
+          <p>Selected: {parkingStructure || 'None Yet'}</p>
+
           <label>
             Notes
-            <textarea value={notes} onChange={(event) => setNotes(event.target.value)}
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="Example: I usually stay late on Monday for club meetings."
             />
           </label>
-          <p>
-            Notes Preview: {notes || "No notes yet"}
-          </p>
+
+          <p>Notes Preview: {notes || 'No notes yet'}</p>
 
           <div className="schedule-section">
-  <h2>Weekly Schedule</h2>
+            <h2>Weekly Schedule</h2>
+            <p>Select one or more days, set a time range, then click Add Time.</p>
 
-  <p>Add the exact times you expect to need parking.</p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '16px' }}>
+              {ALL_DAYS.map((day) => {
+                const active = selectedDays.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => toggleDay(day)}
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '50%',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontWeight: '700',
+                      fontSize: '13px',
+                      background: active ? '#2774ae' : '#e2e8f0',
+                      color: active ? 'white' : '#172033',
+                      transition: 'background 0.15s, color 0.15s',
+                    }}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
 
-  <label>
-    Day
-    <select value={day} onChange={(event) => setDay(event.target.value)}>
-      <option value="">Select a day</option>
-      <option value="monday">Monday</option>
-      <option value="tuesday">Tuesday</option>
-      <option value="wednesday">Wednesday</option>
-      <option value="thursday">Thursday</option>
-      <option value="friday">Friday</option>
-    </select>
-  </label>
+            <label>
+              Start Time
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
+            </label>
 
-  <label>
-    Start Time
-    <input
-      type="time"
-      value={startTime}
-      onChange={(event) => setStartTime(event.target.value)}
-    />
-  </label>
+            <label>
+              End Time
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
+            </label>
 
-  <label>
-    End Time
-    <input
-      type="time"
-      value={endTime}
-      onChange={(event) => setEndTime(event.target.value)}
-    />
-  </label>
+            <button
+              type="button"
+              className="home-login-button"
+              onClick={addScheduleItem}
+              disabled={selectedDays.length === 0 || !startTime || !endTime}
+            >
+              Add Time
+            </button>
 
-  <button type="button" className="home-login-button" onClick={addScheduleItem}>
-    Add Time
-  </button>
+            <div className="schedule-list">
+              {schedule.length === 0 && <p>No schedule times added yet.</p>}
+              {schedule.map((item, index) => (
+                <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
+                  <strong style={{ textTransform: 'capitalize' }}>{item.day}</strong>: {item.startTime} – {item.endTime}
+                </p>
+              ))}
+            </div>
+          </div>
 
-  <div className="schedule-list">
-    {schedule.length === 0 && <p>No schedule times added yet.</p>}
+          <button className="home-login-button" type="submit">
+            Create Post
+          </button>
 
-    {schedule.map((item, index) => (
-      <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-        {item.day}: {item.startTime} - {item.endTime}
-      </p>
-    ))}
-  </div>
-</div>
-    <button className="home-login-button" type="submit">
-  Create Post
-</button>
-
-{message && <p>{message}</p>}
+          {message && <p>{message}</p>}
         </form>
       </div>
     </main>
