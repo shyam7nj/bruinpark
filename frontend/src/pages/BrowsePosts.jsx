@@ -305,7 +305,7 @@ function BrowsePosts() {
   }
 
   return (
-    <main className="browse-posts-page">
+    <main className="browse-posts-page page-enter">
       <div className="browse-posts-card">
         <h1>Browse Parking Posts</h1>
 

@@ -2,7 +2,7 @@ const API_URL = 'http://localhost:3001';
 
 function Home() {
   return (
-    <main className="home-page">
+    <main className="home-page page-enter">
       <div className="home-card">
         <h1 className="home-title">BruinPark</h1>
 

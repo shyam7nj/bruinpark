@@ -75,7 +75,7 @@ function CreatePost() {
   }
 
   return (
-    <main className="create-post-page">
+    <main className="create-post-page page-enter">
       <div className="create-post-card">
         <h1>Create Parking Post</h1>
 

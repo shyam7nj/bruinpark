@@ -1,12 +1,11 @@
-
-function LoginFailed(){
-  return(
-    <main className="login-failed-page">
+function LoginFailed() {
+  return (
+    <main className="login-failed-page page-enter">
       <div className="login-failed-card">
         <h1>Login Failed</h1>
         <p>
           BruinPark is only available to students with a valid UCLA Google account. Please
-          login with your UCLA Google account. 
+          login with your UCLA Google account.
         </p>
 
         <p className="login-failed-help">
@@ -16,7 +15,6 @@ function LoginFailed(){
         <a className="home-login-failed" href="/">
           Back to Home
         </a>
-
       </div>
     </main>
   );

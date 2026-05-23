@@ -24,7 +24,7 @@ function Dashboard() {
 
   if (status === 'Loading') {
     return (
-      <main className="dashboard-page">
+      <main className="dashboard-page page-enter">
         <div className="dashboard-card">
           <p>Loading Dashboard, hang tight...</p>
         </div>
@@ -34,7 +34,7 @@ function Dashboard() {
 
   if (status === 'Unauthenticated') {
     return (
-      <main className="dashboard-page">
+      <main className="dashboard-page page-enter">
         <div className="dashboard-card">
           <h1>Not Logged In</h1>
           <p>You need to login with your UCLA Google account before viewing your dashboard.</p>
@@ -47,7 +47,7 @@ function Dashboard() {
   }
 
   return (
-    <main className="dashboard-page">
+    <main className="dashboard-page page-enter">
       <div className="dashboard-card">
         <h1>Dashboard</h1>
         <p>Welcome to your Dashboard, {user.name}.</p>

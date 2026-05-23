@@ -266,7 +266,7 @@ function MyPosts() {
   }
 
   return (
-    <main className="browse-posts-page">
+    <main className="browse-posts-page page-enter">
       <div className="browse-posts-card">
         <h1>My Posts</h1>
         <p>View, edit, or delete the parking posts you have created.</p>
