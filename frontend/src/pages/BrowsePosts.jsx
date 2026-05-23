@@ -18,6 +18,16 @@ const DAY_DISPLAY = {
   friday: 'Fri',
 };
 
+const MAP_EMBEDS = {
+  'Structure 2': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1261.5671237051129!2d-118.44065590486038!3d34.06854862436538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc878affdd69%3A0x6cc7e5e24a597905!2sParking%20Structure%202%2C%20Los%20Angeles%2C%20CA!5e0!3m2!1sen!2sus!4v1779506355651!5m2!1sen!2sus',
+  'Structure 3': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3304.7003269151987!2d-118.44259692439267!3d34.07719551641251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8a795600dd%3A0xec697e3a80ce9b83!2sParking%20Structure%203%2C%20215%20Charles%20E%20Young%20Dr%20N%2C%20Los%20Angeles%2C%20CA%2090024!5e0!3m2!1sen!2sus!4v1779506410229!5m2!1sen!2sus',
+  'Structure 4': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6609.759639444802!2d-118.44734882439309!3d34.07259491665573!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc894adea999%3A0x1796b84964298e5a!2sParking%20Structure%204%2C%20221%20Westwood%20Plaza%2C%20Los%20Angeles%2C%20CA%2090095!5e0!3m2!1sen!2sus!4v1779506428833!5m2!1sen!2sus',
+  'Structure 7': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6609.718340243569!2d-118.44947662439291!3d34.07312421662764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8ea39d0597%3A0xadcc3bdd65bc9d13!2sParking%20Structure%207%20-%20Underground%2C%20Charles%20E%20Young%20Dr%20N%2C%20Los%20Angeles%2C%20CA%2090095!5e0!3m2!1sen!2sus!4v1779506452915!5m2!1sen!2sus',
+  'Structure 8': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.0667768651488!2d-118.44916452439324!3d34.06780241690882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc85f1f41865%3A0xbf48e42d9c4d478!2sStructure%208%20Driveway%2C%20Los%20Angeles%2C%20CA%2090095!5e0!3m2!1sen!2sus!4v1779506482198!5m2!1sen!2sus',
+  'Structure 9': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.0838115391575!2d-118.44635812439326!3d34.06736571693179!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8643c172a7%3A0x2b63fca22e7d1b95!2sStructure%209%20Parking%20Entry%2FExit%2C%20Los%20Angeles%2C%20CA!5e0!3m2!1sen!2sus!4v1779506521848!5m2!1sen!2sus',
+  'Structure 11': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1204.0229172551055!2d-118.45368835434132!3d34.074577649529516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc92fb8042e7%3A0x51992d08a739455b!2sParking%20Lot%2011%2C%20De%20Neve%20Dr%2C%20Los%20Angeles%2C%20CA%2090024!5e0!3m2!1sen!2sus!4v1779506546113!5m2!1sen!2sus',
+};
+
 function SchedulePicker({ schedule, onChange }) {
   const [selectedDays, setSelectedDays] = useState([]);
   const [startTime, setStartTime] = useState('');
@@ -136,12 +146,34 @@ function SchedulePicker({ schedule, onChange }) {
   );
 }
 
-function EditModal({ post, onClose, onSaved }) {
+function EditModal({ post, onClose, onSaved, onDeleted }) {
   const [parkingStructure, setParkingStructure] = useState(post.parkingStructure);
   const [notes, setNotes] = useState(post.notes || '');
   const [schedule, setSchedule] = useState(post.schedule || []);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        onDeleted(post._id);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to delete post.');
+      }
+    } catch {
+      setError('Network error.');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function handleSave() {
     setError('');
@@ -208,15 +240,21 @@ function EditModal({ post, onClose, onSaved }) {
 
         {error && <p style={{ color: '#ef4444', marginTop: '12px' }}>{error}</p>}
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={onClose}
-            style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
-            Cancel
+        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button type="button" onClick={handleDelete} disabled={deleting}
+            style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}>
+            {deleting ? 'Deleting...' : 'Delete Post'}
           </button>
-          <button type="button" onClick={handleSave} disabled={saving}
-            style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" onClick={onClose}
+              style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
+              Cancel
+            </button>
+            <button type="button" onClick={handleSave} disabled={saving}
+              style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -228,6 +266,7 @@ function BrowsePosts() {
   const [message, setMessage] = useState('Loading posts...');
   const [currentUser, setCurrentUser] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
+  const [showMapId, setShowMapId] = useState(null);
 
   useEffect(() => {
     fetch(`${API_URL}/auth/me`, { credentials: 'include' })
@@ -253,6 +292,11 @@ function BrowsePosts() {
       `Hi ${ownerName},\n\nI came across your parking post on BruinPark for ${post.parkingStructure} and I think our schedules might be compatible.\n\nI'd love to connect and see if we can work something out!\n\nThanks`
     );
     window.location.href = `mailto:${ownerEmail}?subject=${subject}&body=${body}`;
+  }
+
+  function handleDeleted(postId) {
+    setPosts((prev) => prev.filter((p) => p._id !== postId));
+    setEditingPost(null);
   }
 
   function handleSaved(updatedPost) {
@@ -301,6 +345,40 @@ function BrowsePosts() {
                   <p><strong>Notes:</strong> {post.notes}</p>
                 )}
 
+                {/* Show Location toggle */}
+                <div style={{ marginTop: '12px' }}>
+                  <button
+                    onClick={() => setShowMapId(showMapId === post._id ? null : post._id)}
+                    style={{
+                      padding: '6px 14px',
+                      background: 'white',
+                      color: '#2774ae',
+                      border: '2px solid #2774ae',
+                      borderRadius: '8px',
+                      fontWeight: '700',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {showMapId === post._id ? 'Hide Location' : 'Show Location'}
+                  </button>
+
+                  {showMapId === post._id && MAP_EMBEDS[post.parkingStructure] && (
+                    <div style={{ marginTop: '12px', borderRadius: '12px', overflow: 'hidden' }}>
+                      <iframe
+                        src={MAP_EMBEDS[post.parkingStructure]}
+                        width="100%"
+                        height="300"
+                        style={{ border: 0, display: 'block' }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={`Map for ${post.parkingStructure}`}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div style={{ marginTop: '16px' }}>
                   {isOwnPost ? (
                     <button
@@ -347,6 +425,7 @@ function BrowsePosts() {
           post={editingPost}
           onClose={() => setEditingPost(null)}
           onSaved={handleSaved}
+          onDeleted={handleDeleted}
         />
       )}
     </main>
