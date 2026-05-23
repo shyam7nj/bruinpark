@@ -10,6 +10,70 @@ const DAY_MAP = {
   Fri: 'friday',
 };
 
+const MINUTES = ['00','05','10','15','20','25','30','35','40','45','50','55'];
+
+function formatTime(time) {
+  if (!time) return '';
+  const [hourStr, minute] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  return `${hour}:${minute} ${ampm}`;
+}
+
+function toHHMM(hour, minute, ampm) {
+  let h = parseInt(hour, 10);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return `${String(h).padStart(2, '0')}:${minute}`;
+}
+
+const selectStyle = {
+  padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit',
+};
+
+function TimePicker({ value, onChange, label }) {
+  function parseVal(val) {
+    if (!val) return { hour: '', minute: '', ampm: 'AM' };
+    const [hourStr, min] = val.split(':');
+    let h = parseInt(hourStr, 10);
+    const ap = h >= 12 ? 'PM' : 'AM';
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return { hour: String(h), minute: min, ampm: ap };
+  }
+
+  const { hour, minute, ampm } = parseVal(value);
+
+  function handleChange(h, m, ap) {
+    if (h && m) onChange(toHHMM(h, m, ap));
+  }
+
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontWeight: '700' }}>
+      {label}
+      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <select value={hour} onChange={(e) => handleChange(e.target.value, minute, ampm)} style={selectStyle}>
+          <option value="">Hr</option>
+          {[1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
+            <option key={h} value={String(h)}>{h}</option>
+          ))}
+        </select>
+        <span style={{ fontWeight: '700' }}>:</span>
+        <select value={minute} onChange={(e) => handleChange(hour, e.target.value, ampm)} style={selectStyle}>
+          <option value="">Min</option>
+          {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <select value={ampm} onChange={(e) => handleChange(hour, minute, e.target.value)} style={selectStyle}>
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    </label>
+  );
+}
+
 const MAP_EMBEDS = {
   'Structure 2': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1261.5671237051129!2d-118.44065590486038!3d34.06854862436538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc878affdd69%3A0x6cc7e5e24a597905!2sParking%20Structure%202%2C%20Los%20Angeles%2C%20CA!5e0!3m2!1sen!2sus!4v1779506355651!5m2!1sen!2sus',
   'Structure 3': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3304.7003269151987!2d-118.44259692439267!3d34.07719551641251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8a795600dd%3A0xec697e3a80ce9b83!2sParking%20Structure%203%2C%20215%20Charles%20E%20Young%20Dr%20N%2C%20Los%20Angeles%2C%20CA%2090024!5e0!3m2!1sen!2sus!4v1779506410229!5m2!1sen!2sus',
@@ -28,6 +92,8 @@ function CreatePost() {
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [scheduleError, setScheduleError] = useState('');
 
   function toggleDay(day) {
     setSelectedDays((prev) =>
@@ -40,6 +106,12 @@ function CreatePost() {
       return;
     }
 
+    if (startTime >= endTime) {
+      setScheduleError('Start time must be before end time.');
+      return;
+    }
+
+    setScheduleError('');
     const newItems = selectedDays.map((shortDay) => ({
       day: DAY_MAP[shortDay],
       startTime,
@@ -52,9 +124,28 @@ function CreatePost() {
     setEndTime('');
   }
 
-  async function submitPost(event) {
+  function removeScheduleItem(index) {
+    setSchedule((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleSubmitClick(event) {
     event.preventDefault();
     setMessage('');
+
+    if (!parkingStructure) {
+      setMessage('Please select a parking structure.');
+      return;
+    }
+    if (schedule.length === 0) {
+      setMessage('Please add at least one schedule time.');
+      return;
+    }
+
+    setShowConfirm(true);
+  }
+
+  async function confirmSubmit() {
+    setShowConfirm(false);
 
     const response = await fetch('http://localhost:3001/api/posts', {
       method: 'POST',
@@ -84,7 +175,7 @@ function CreatePost() {
           find compatible schedules.
         </p>
 
-        <form className="create-post-form" onSubmit={submitPost}>
+        <form className="create-post-form" onSubmit={handleSubmitClick}>
           <label>
             Parking Structure
             <select
@@ -160,23 +251,8 @@ function CreatePost() {
               })}
             </div>
 
-            <label>
-              Start Time
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </label>
-
-            <label>
-              End Time
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </label>
+            <TimePicker label="Start Time" value={startTime} onChange={setStartTime} />
+            <TimePicker label="End Time" value={endTime} onChange={setEndTime} />
 
             <button
               type="button"
@@ -187,12 +263,39 @@ function CreatePost() {
               Add Time
             </button>
 
+            {scheduleError && (
+              <p style={{ color: '#ef4444', fontWeight: '700', margin: '8px 0 0' }}>
+                {scheduleError}
+              </p>
+            )}
+
             <div className="schedule-list">
               {schedule.length === 0 && <p>No schedule times added yet.</p>}
               {schedule.map((item, index) => (
-                <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-                  <strong style={{ textTransform: 'capitalize' }}>{item.day}</strong>: {item.startTime} – {item.endTime}
-                </p>
+                <div
+                  key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}
+                >
+                  <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>
+                    <strong>{item.day}</strong>: {formatTime(item.startTime)} – {formatTime(item.endTime)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeScheduleItem(index)}
+                    style={{
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      cursor: 'pointer',
+                      fontWeight: '700',
+                      fontSize: '12px',
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -201,9 +304,87 @@ function CreatePost() {
             Create Post
           </button>
 
-          {message && <p>{message}</p>}
+          {message && (
+            <p style={{
+              marginTop: '12px',
+              fontWeight: '700',
+              color: message.includes('successfully') ? '#16a34a' : '#ef4444',
+            }}>
+              {message}
+            </p>
+          )}
         </form>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'white', borderRadius: '20px', padding: '36px',
+            width: '100%', maxWidth: '480px', boxShadow: '0 24px 60px rgba(0,0,0,0.2)',
+            animation: 'fadeSlideIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both',
+          }}>
+            <h2 style={{ margin: '0 0 6px', color: '#2774ae', fontSize: '24px' }}>
+              Confirm Your Post
+            </h2>
+            <p style={{ margin: '0 0 20px', color: '#6b7280', fontSize: '14px' }}>
+              Please review your post details before submitting.
+            </p>
+
+            <div style={{ background: '#f5f8fc', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 8px', fontWeight: '700', color: '#172033' }}>
+                📍 {parkingStructure}
+              </p>
+
+              <p style={{ margin: '0 0 6px', fontWeight: '700', color: '#172033', fontSize: '14px' }}>
+                Schedule:
+              </p>
+              {schedule.map((item, i) => (
+                <p key={i} style={{ margin: '2px 0 2px 12px', fontSize: '14px', color: '#374151', textTransform: 'capitalize' }}>
+                  • <strong>{item.day}</strong>: {formatTime(item.startTime)} – {formatTime(item.endTime)}
+                </p>
+              ))}
+
+              {notes && (
+                <>
+                  <p style={{ margin: '10px 0 4px', fontWeight: '700', color: '#172033', fontSize: '14px' }}>
+                    Notes:
+                  </p>
+                  <p style={{ margin: '0 0 0 12px', fontSize: '14px', color: '#374151' }}>
+                    {notes}
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowConfirm(false)}
+                style={{
+                  padding: '10px 22px', border: '2px solid #2774ae', borderRadius: '8px',
+                  background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer',
+                  fontSize: '15px',
+                }}
+              >
+                Go Back
+              </button>
+              <button
+                onClick={confirmSubmit}
+                style={{
+                  padding: '10px 22px', background: '#2774ae', color: 'white',
+                  border: 'none', borderRadius: '8px', fontWeight: '700',
+                  cursor: 'pointer', fontSize: '15px',
+                }}
+              >
+                Confirm & Post
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

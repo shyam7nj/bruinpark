@@ -18,6 +18,91 @@ const DAY_DISPLAY = {
   friday: 'Fri',
 };
 
+const MINUTES = ['00','05','10','15','20','25','30','35','40','45','50','55'];
+
+function formatTime(time) {
+  if (!time) return '';
+  const [hourStr, minute] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  return `${hour}:${minute} ${ampm}`;
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const past = new Date(dateStr);
+  const seconds = Math.floor((now - past) / 1000);
+
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years !== 1 ? 's' : ''} ago`;
+}
+
+function toHHMM(hour, minute, ampm) {
+  let h = parseInt(hour, 10);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return `${String(h).padStart(2, '0')}:${minute}`;
+}
+
+const selectStyle = {
+  padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit',
+};
+
+function TimePicker({ value, onChange, label }) {
+  function parseVal(val) {
+    if (!val) return { hour: '', minute: '', ampm: 'AM' };
+    const [hourStr, min] = val.split(':');
+    let h = parseInt(hourStr, 10);
+    const ap = h >= 12 ? 'PM' : 'AM';
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return { hour: String(h), minute: min, ampm: ap };
+  }
+
+  const { hour, minute, ampm } = parseVal(value);
+
+  function handleChange(h, m, ap) {
+    if (h && m) onChange(toHHMM(h, m, ap));
+  }
+
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
+      {label}
+      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <select value={hour} onChange={(e) => handleChange(e.target.value, minute, ampm)} style={selectStyle}>
+          <option value="">Hr</option>
+          {[1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
+            <option key={h} value={String(h)}>{h}</option>
+          ))}
+        </select>
+        <span style={{ fontWeight: '700' }}>:</span>
+        <select value={minute} onChange={(e) => handleChange(hour, e.target.value, ampm)} style={selectStyle}>
+          <option value="">Min</option>
+          {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <select value={ampm} onChange={(e) => handleChange(hour, minute, e.target.value)} style={selectStyle}>
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    </label>
+  );
+}
+
 const MAP_EMBEDS = {
   'Structure 2': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1261.5671237051129!2d-118.44065590486038!3d34.06854862436538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc878affdd69%3A0x6cc7e5e24a597905!2sParking%20Structure%202%2C%20Los%20Angeles%2C%20CA!5e0!3m2!1sen!2sus!4v1779506355651!5m2!1sen!2sus',
   'Structure 3': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3304.7003269151987!2d-118.44259692439267!3d34.07719551641251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8a795600dd%3A0xec697e3a80ce9b83!2sParking%20Structure%203%2C%20215%20Charles%20E%20Young%20Dr%20N%2C%20Los%20Angeles%2C%20CA%2090024!5e0!3m2!1sen!2sus!4v1779506410229!5m2!1sen!2sus',
@@ -86,16 +171,8 @@ function SchedulePicker({ schedule, onChange }) {
       </div>
 
       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '12px' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
-          Start
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-            style={{ padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit' }} />
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontWeight: '600', fontSize: '14px' }}>
-          End
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
-            style={{ padding: '8px', border: '2px solid #2774ae', borderRadius: '8px', font: 'inherit' }} />
-        </label>
+        <TimePicker label="Start" value={startTime} onChange={setStartTime} />
+        <TimePicker label="End" value={endTime} onChange={setEndTime} />
         <button
           type="button"
           onClick={addBlock}
@@ -121,7 +198,7 @@ function SchedulePicker({ schedule, onChange }) {
         {schedule.map((item, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
             <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>
-              {DAY_DISPLAY[item.day] || item.day}: {item.startTime} – {item.endTime}
+              {DAY_DISPLAY[item.day] || item.day}: {formatTime(item.startTime)} – {formatTime(item.endTime)}
             </span>
             <button
               type="button"
@@ -153,9 +230,9 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function handleDelete() {
-    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
     setDeleting(true);
     try {
       const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
@@ -167,9 +244,11 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to delete post.');
+        setConfirmDelete(false);
       }
     } catch {
       setError('Network error.');
+      setConfirmDelete(false);
     } finally {
       setDeleting(false);
     }
@@ -240,22 +319,50 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
 
         {error && <p style={{ color: '#ef4444', marginTop: '12px' }}>{error}</p>}
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button type="button" onClick={handleDelete} disabled={deleting}
-            style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}>
-            {deleting ? 'Deleting...' : 'Delete Post'}
-          </button>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button type="button" onClick={onClose}
-              style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
-              Cancel
-            </button>
-            <button type="button" onClick={handleSave} disabled={saving}
-              style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+        {confirmDelete ? (
+          <div style={{
+            marginTop: '24px', background: '#fef2f2', border: '2px solid #ef4444',
+            borderRadius: '12px', padding: '16px',
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#991b1b' }}>
+              Are you sure you want to delete this post? This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                style={{ padding: '8px 18px', border: '2px solid #6b7280', borderRadius: '8px', background: 'white', color: '#374151', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{ padding: '8px 18px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button type="button" onClick={() => setConfirmDelete(true)}
+              style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>
+              Delete Post
+            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button type="button" onClick={onClose}
+                style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} disabled={saving}
+                style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -326,6 +433,9 @@ function BrowsePosts() {
 
                 <p>
                   Posted by: <strong>{post.owner?.name || 'Unknown user'}</strong>
+                  <span style={{ marginLeft: '10px', fontSize: '13px', color: '#9ca3af', fontWeight: '400' }}>
+                    · {timeAgo(post.createdAt)}
+                  </span>
                 </p>
 
                 <div className="post-schedule">
@@ -336,7 +446,7 @@ function BrowsePosts() {
                       style={{ margin: '4px 0', textTransform: 'capitalize' }}
                     >
                       <strong>{DAY_DISPLAY[item.day] || item.day}:</strong>{' '}
-                      {item.startTime} – {item.endTime}
+                      {formatTime(item.startTime)} – {formatTime(item.endTime)}
                     </p>
                   ))}
                 </div>
