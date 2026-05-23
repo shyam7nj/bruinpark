@@ -1,4 +1,3 @@
-
 import {useState} from 'react';
 
 
@@ -80,6 +79,8 @@ function CreatePost() {
               <option value="Structure 4">Structure 4</option>
               <option value="Structure 7">Structure 7</option>
               <option value="Structure 8">Structure 8</option>
+              <option value="Structure 9">Structure 9</option>
+              <option value="Structure 11">Structure 11</option>
             </select>
           </label>
          <p>Selected: {parkingStructure || "None Yet"}</p>
