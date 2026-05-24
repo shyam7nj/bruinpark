@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
@@ -31,6 +31,18 @@ const MAP_EMBEDS = {
 };
 
 function CreatePost() {
+  const [verified, setVerified] = useState(null); // null = loading
+
+  useEffect(() => {
+    fetch('http://localhost:3001/auth/me', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) { window.location.href = '/'; return; }
+        setVerified(data.isVerified);
+      })
+      .catch(() => { window.location.href = '/'; });
+  }, []);
+
   const [parkingStructure, setParkingStructure] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedDays, setSelectedDays] = useState([]);
@@ -109,6 +121,28 @@ function CreatePost() {
       const data = await response.json();
       setMessage(data.error || 'Failed to create parking post.');
     }
+  }
+
+  if (verified === null) {
+    return (
+      <main className="create-post-page page-enter">
+        <div className="create-post-card"><p>Loading...</p></div>
+      </main>
+    );
+  }
+
+  if (verified === false) {
+    return (
+      <main className="create-post-page page-enter">
+        <div className="create-post-card">
+          <h1>Permit Required</h1>
+          <p>You must verify your UCLA parking permit before creating posts.</p>
+          <a className="home-login-button" href="/verify">
+            Go to Verification →
+          </a>
+        </div>
+      </main>
+    );
   }
 
   return (

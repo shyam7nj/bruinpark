@@ -299,14 +299,24 @@ function MyPosts() {
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/posts/mine`, { credentials: 'include' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        setPosts(data);
+    // Check verification first, then load posts
+    fetch(`${API_URL}/auth/me`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data || !data.isVerified) {
+          window.location.href = '/dashboard';
+          return;
+        }
+        fetch(`${API_URL}/api/posts/mine`, { credentials: 'include' })
+          .then(async (res) => {
+            if (!res.ok) throw new Error();
+            const posts = await res.json();
+            setPosts(posts);
+          })
+          .catch(() => setMessage('Could not load your posts.'))
+          .finally(() => setLoading(false));
       })
-      .catch(() => setMessage('Could not load your posts.'))
-      .finally(() => setLoading(false));
+      .catch(() => { window.location.href = '/dashboard'; });
   }, []);
 
   async function handleDelete(postId) {

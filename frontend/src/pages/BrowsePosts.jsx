@@ -334,19 +334,27 @@ function BrowsePosts() {
   const [showMapId, setShowMapId] = useState(null);
 
   useEffect(() => {
+    // Check verification first, then load data
     fetch(`${API_URL}/auth/me`, { credentials: 'include' })
-      .then((res) => res.ok ? res.json() : null)
-      .then((data) => setCurrentUser(data))
-      .catch(() => {});
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data || !data.isVerified) {
+          window.location.href = '/dashboard';
+          return;
+        }
+        setCurrentUser(data);
 
-    fetch(`${API_URL}/api/posts`, { credentials: 'include' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to load posts');
-        const data = await res.json();
-        setPosts(data);
-        setMessage('');
+        // Load posts once verified
+        fetch(`${API_URL}/api/posts`, { credentials: 'include' })
+          .then(async (res) => {
+            if (!res.ok) throw new Error('Failed to load posts');
+            const posts = await res.json();
+            setPosts(posts);
+            setMessage('');
+          })
+          .catch(() => setMessage('Could not load posts.'));
       })
-      .catch(() => setMessage('Could not load posts.'));
+      .catch(() => { window.location.href = '/dashboard'; });
   }, []);
 
   function handleContact(post) {
