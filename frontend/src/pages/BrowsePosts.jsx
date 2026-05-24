@@ -18,6 +18,41 @@ const DAY_DISPLAY = {
   friday: 'Fri',
 };
 
+
+
+function formatTime(time) {
+  if (!time) return '';
+  const [hourStr, minute] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  return `${hour}:${minute} ${ampm}`;
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const past = new Date(dateStr);
+  const seconds = Math.floor((now - past) / 1000);
+
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years !== 1 ? 's' : ''} ago`;
+}
+
+
+
 const MAP_EMBEDS = {
   'Structure 2': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1261.5671237051129!2d-118.44065590486038!3d34.06854862436538!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc878affdd69%3A0x6cc7e5e24a597905!2sParking%20Structure%202%2C%20Los%20Angeles%2C%20CA!5e0!3m2!1sen!2sus!4v1779506355651!5m2!1sen!2sus',
   'Structure 3': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3304.7003269151987!2d-118.44259692439267!3d34.07719551641251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bc8a795600dd%3A0xec697e3a80ce9b83!2sParking%20Structure%203%2C%20215%20Charles%20E%20Young%20Dr%20N%2C%20Los%20Angeles%2C%20CA%2090024!5e0!3m2!1sen!2sus!4v1779506410229!5m2!1sen!2sus',
@@ -121,7 +156,7 @@ function SchedulePicker({ schedule, onChange }) {
         {schedule.map((item, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
             <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>
-              {DAY_DISPLAY[item.day] || item.day}: {item.startTime} – {item.endTime}
+              {DAY_DISPLAY[item.day] || item.day}: {formatTime(item.startTime)} – {formatTime(item.endTime)}
             </span>
             <button
               type="button"
@@ -153,9 +188,9 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function handleDelete() {
-    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
     setDeleting(true);
     try {
       const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
@@ -167,9 +202,11 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to delete post.');
+        setConfirmDelete(false);
       }
     } catch {
       setError('Network error.');
+      setConfirmDelete(false);
     } finally {
       setDeleting(false);
     }
@@ -240,25 +277,94 @@ function EditModal({ post, onClose, onSaved, onDeleted }) {
 
         {error && <p style={{ color: '#ef4444', marginTop: '12px' }}>{error}</p>}
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button type="button" onClick={handleDelete} disabled={deleting}
-            style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}>
-            {deleting ? 'Deleting...' : 'Delete Post'}
-          </button>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button type="button" onClick={onClose}
-              style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
-              Cancel
-            </button>
-            <button type="button" onClick={handleSave} disabled={saving}
-              style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+        {confirmDelete ? (
+          <div style={{
+            marginTop: '24px', background: '#fef2f2', border: '2px solid #ef4444',
+            borderRadius: '12px', padding: '16px',
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#991b1b' }}>
+              Are you sure you want to delete this post? This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                style={{ padding: '8px 18px', border: '2px solid #6b7280', borderRadius: '8px', background: 'white', color: '#374151', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{ padding: '8px 18px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button type="button" onClick={() => setConfirmDelete(true)}
+              style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>
+              Delete Post
+            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button type="button" onClick={onClose}
+                style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} disabled={saving}
+                style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+// ─── Filter constants ─────────────────────────────────────────────────────────
+
+// ALL_DAYS and DAY_MAP already defined at top of file — reused here
+const DAY_FULL = DAY_MAP; // alias for filter use
+const ALL_LOTS = ['Structure 2', 'Structure 3', 'Structure 4', 'Structure 7', 'Structure 8', 'Structure 9', 'Structure 11'];
+
+const TIME_PERIODS = [
+  { name: 'Early Morning', label: '12:00am – 4:59am', icon: '🌄', start: 0,    end: 299  },
+  { name: 'Morning',       label: '5:00am – 11:59am',  icon: '☀️', start: 300,  end: 719  },
+  { name: 'Afternoon',     label: '12:00pm – 5:59pm',  icon: '🌤️', start: 720,  end: 1079 },
+  { name: 'Evening',       label: '6:00pm – 11:59pm',  icon: '🌙', start: 1080, end: 1439 },
+];
+
+function timeToMinutes(t) {
+  if (!t) return 0;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function postMatchesFilters(post, selDays, selPeriods, selLots) {
+  if (selLots.length > 0 && !selLots.includes(post.parkingStructure)) return false;
+  if (selDays.length === 0 && selPeriods.length === 0) return true;
+
+  return post.schedule?.some(item => {
+    const dayOk = selDays.length === 0 || selDays.includes(item.day);
+    const itemStart = timeToMinutes(item.startTime);
+    const itemEnd   = timeToMinutes(item.endTime);
+    const periodOk  = selPeriods.length === 0 || selPeriods.some(pName => {
+      const p = TIME_PERIODS.find(x => x.name === pName);
+      return p && itemStart <= p.end && itemEnd > p.start;
+    });
+    return dayOk && periodOk;
+  }) ?? false;
+}
+
+// ─── Toggle helper ────────────────────────────────────────────────────────────
+
+function toggle(arr, val) {
+  return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
 }
 
 function BrowsePosts() {
@@ -268,20 +374,35 @@ function BrowsePosts() {
   const [editingPost, setEditingPost] = useState(null);
   const [showMapId, setShowMapId] = useState(null);
 
-  useEffect(() => {
-    fetch(`${API_URL}/auth/me`, { credentials: 'include' })
-      .then((res) => res.ok ? res.json() : null)
-      .then((data) => setCurrentUser(data))
-      .catch(() => {});
+  // Filter state
+  const [selDays,    setSelDays]    = useState([]);
+  const [selPeriods, setSelPeriods] = useState([]);
+  const [selLots,    setSelLots]    = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortOrder, setSortOrder] = useState('newest'); // newest | oldest
 
-    fetch(`${API_URL}/api/posts`, { credentials: 'include' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to load posts');
-        const data = await res.json();
-        setPosts(data);
-        setMessage('');
+  useEffect(() => {
+    // Check verification first, then load data
+    fetch(`${API_URL}/auth/me`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data || !data.isVerified) {
+          window.location.href = '/dashboard';
+          return;
+        }
+        setCurrentUser(data);
+
+        // Load posts once verified
+        fetch(`${API_URL}/api/posts`, { credentials: 'include' })
+          .then(async (res) => {
+            if (!res.ok) throw new Error('Failed to load posts');
+            const posts = await res.json();
+            setPosts(posts);
+            setMessage('');
+          })
+          .catch(() => setMessage('Could not load posts.'));
       })
-      .catch(() => setMessage('Could not load posts.'));
+      .catch(() => { window.location.href = '/dashboard'; });
   }, []);
 
   function handleContact(post) {
@@ -304,20 +425,195 @@ function BrowsePosts() {
     setEditingPost(null);
   }
 
+  const filteredPosts = posts
+    .filter(p => postMatchesFilters(p, selDays, selPeriods, selLots))
+    .sort((a, b) => {
+      const diff = new Date(a.createdAt) - new Date(b.createdAt);
+      return sortOrder === 'newest' ? -diff : diff;
+    });
+  const filtersActive = selDays.length > 0 || selPeriods.length > 0 || selLots.length > 0;
+
   return (
     <main className="browse-posts-page page-enter">
       <div className="browse-posts-card">
         <h1>Browse Parking Posts</h1>
-
         <p>
           View parking posts from other UCLA commuters and look for compatible
           schedules. Click <strong>Contact</strong> to email a permit holder directly.
         </p>
 
+        {/* Filter toggle bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => setShowFilters(f => !f)}
+              style={{
+                padding: '8px 18px', background: showFilters ? '#2774ae' : 'white',
+                color: showFilters ? 'white' : '#2774ae',
+                border: '2px solid #2774ae', borderRadius: '8px',
+                fontWeight: '700', cursor: 'pointer', fontSize: '14px',
+                display: 'flex', alignItems: 'center', gap: '6px',
+              }}
+            >
+              🔍 {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {filtersActive && (
+                <span style={{
+                  background: '#ef4444', color: 'white',
+                  borderRadius: '999px', padding: '1px 7px', fontSize: '12px',
+                }}>
+                  {selDays.length + selPeriods.length + selLots.length}
+                </span>
+              )}
+            </button>
+
+            {filtersActive && (
+              <button
+                onClick={() => { setSelDays([]); setSelPeriods([]); setSelLots([]); }}
+                style={{
+                  background: 'none', border: 'none', color: '#6b7280',
+                  fontSize: '13px', cursor: 'pointer', textDecoration: 'underline',
+                }}
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+
+          {/* Sort dropdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '13px', fontWeight: '700', color: '#172033', whiteSpace: 'nowrap' }}>
+              Sort by:
+            </label>
+            <select
+              value={sortOrder}
+              onChange={e => setSortOrder(e.target.value)}
+              style={{
+                padding: '8px 12px', border: '2px solid #2774ae',
+                borderRadius: '8px', font: 'inherit', fontSize: '13px',
+                fontWeight: '600', background: 'white', color: '#172033',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Filter panel */}
+        {showFilters && (
+          <div style={{
+            background: 'white', borderRadius: '16px', padding: '20px',
+            marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '20px',
+          }}>
+
+            {/* Days */}
+            <div>
+              <p style={{ margin: '0 0 10px', fontWeight: '700', color: '#172033', fontSize: '14px' }}>
+                Days
+              </p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {ALL_DAYS.map(short => {
+                  const full = DAY_FULL[short];
+                  const active = selDays.includes(full);
+                  return (
+                    <button
+                      key={short}
+                      onClick={() => setSelDays(prev => toggle(prev, full))}
+                      style={{
+                        width: '44px', height: '44px', borderRadius: '50%',
+                        border: 'none', cursor: 'pointer',
+                        fontWeight: '700', fontSize: '13px',
+                        background: active ? '#2774ae' : '#e2e8f0',
+                        color: active ? 'white' : '#172033',
+                        transition: 'background 0.15s, color 0.15s',
+                      }}
+                    >
+                      {short}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Time periods */}
+            <div>
+              <p style={{ margin: '0 0 10px', fontWeight: '700', color: '#172033', fontSize: '14px' }}>
+                Time of Day
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {TIME_PERIODS.map(period => {
+                  const active = selPeriods.includes(period.name);
+                  return (
+                    <button
+                      key={period.name}
+                      onClick={() => setSelPeriods(prev => toggle(prev, period.name))}
+                      style={{
+                        padding: '14px 12px',
+                        background: active ? '#eff6ff' : '#f5f8fc',
+                        border: `2px solid ${active ? '#2774ae' : '#e2e8f0'}`,
+                        borderRadius: '12px', cursor: 'pointer',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                        transition: 'border 0.15s, background 0.15s',
+                      }}
+                    >
+                      <span style={{ fontSize: '24px', lineHeight: 1 }}>{period.icon}</span>
+                      <span style={{ fontWeight: '700', fontSize: '13px', color: active ? '#2774ae' : '#172033' }}>
+                        {period.name}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#6b7280' }}>{period.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Parking lots */}
+            <div>
+              <p style={{ margin: '0 0 10px', fontWeight: '700', color: '#172033', fontSize: '14px' }}>
+                Parking Structure
+              </p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {ALL_LOTS.map(lot => {
+                  const active = selLots.includes(lot);
+                  const short = lot.replace('Structure ', 'S');
+                  return (
+                    <button
+                      key={lot}
+                      onClick={() => setSelLots(prev => toggle(prev, lot))}
+                      style={{
+                        padding: '8px 14px', borderRadius: '8px', border: 'none',
+                        cursor: 'pointer', fontWeight: '700', fontSize: '13px',
+                        background: active ? '#2774ae' : '#e2e8f0',
+                        color: active ? 'white' : '#172033',
+                        transition: 'background 0.15s, color 0.15s',
+                      }}
+                    >
+                      {short}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results count */}
+        {filtersActive && (
+          <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
+            Showing <strong>{filteredPosts.length}</strong> of {posts.length} posts
+          </p>
+        )}
+
         {message && <p>{message}</p>}
 
         <div className="posts-list">
-          {posts.map((post) => {
+          {filteredPosts.length === 0 && !message && (
+            <p style={{ color: '#6b7280', textAlign: 'center', marginTop: '24px' }}>
+              {filtersActive ? 'No posts match your filters. Try adjusting them.' : 'No posts yet.'}
+            </p>
+          )}
+          {filteredPosts.map((post) => {
             const isOwnPost = currentUser && post.owner?.email === currentUser.email;
 
             return (
@@ -326,6 +622,9 @@ function BrowsePosts() {
 
                 <p>
                   Posted by: <strong>{post.owner?.name || 'Unknown user'}</strong>
+                  <span style={{ marginLeft: '10px', fontSize: '13px', color: '#9ca3af', fontWeight: '400' }}>
+                    · {timeAgo(post.createdAt)}
+                  </span>
                 </p>
 
                 <div className="post-schedule">
@@ -336,7 +635,7 @@ function BrowsePosts() {
                       style={{ margin: '4px 0', textTransform: 'capitalize' }}
                     >
                       <strong>{DAY_DISPLAY[item.day] || item.day}:</strong>{' '}
-                      {item.startTime} – {item.endTime}
+                      {formatTime(item.startTime)} – {formatTime(item.endTime)}
                     </p>
                   ))}
                 </div>

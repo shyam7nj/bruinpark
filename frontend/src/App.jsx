@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import BrowsePosts from './pages/BrowsePosts';
 import MyPosts from './pages/MyPosts';
+import Verify from './pages/Verify';
 
 function App() {
   const path = window.location.pathname;
@@ -15,6 +16,7 @@ function App() {
   if (path === '/create-post') return <CreatePost />;
   if (path === '/browse-posts') return <BrowsePosts />;
   if (path === '/my-posts') return <MyPosts />;
+  if (path === '/verify') return <Verify />;
 
   return <Home />;
 }

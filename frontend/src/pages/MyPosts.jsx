@@ -18,6 +18,16 @@ const DAY_DISPLAY = {
   friday: 'Fri',
 };
 
+function formatTime(time) {
+  if (!time) return '';
+  const [hourStr, minute] = time.split(':');
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  if (hour === 0) hour = 12;
+  else if (hour > 12) hour -= 12;
+  return `${hour}:${minute} ${ampm}`;
+}
+
 function SchedulePicker({ schedule, onChange }) {
   const [selectedDays, setSelectedDays] = useState([]);
   const [startTime, setStartTime] = useState('');
@@ -111,7 +121,7 @@ function SchedulePicker({ schedule, onChange }) {
         {schedule.map((item, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
             <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>
-              {DAY_DISPLAY[item.day] || item.day}: {item.startTime} – {item.endTime}
+              {DAY_DISPLAY[item.day] || item.day}: {formatTime(item.startTime)} – {formatTime(item.endTime)}
             </span>
             <button
               type="button"
@@ -136,12 +146,36 @@ function SchedulePicker({ schedule, onChange }) {
   );
 }
 
-function EditModal({ post, onClose, onSaved }) {
+function EditModal({ post, onClose, onSaved, onDeleted }) {
   const [parkingStructure, setParkingStructure] = useState(post.parkingStructure);
   const [notes, setNotes] = useState(post.notes || '');
   const [schedule, setSchedule] = useState(post.schedule || []);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/api/posts/${post._id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        onDeleted(post._id);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to delete post.');
+        setConfirmDelete(false);
+      }
+    } catch {
+      setError('Network error.');
+      setConfirmDelete(false);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function handleSave() {
     setError('');
@@ -208,16 +242,50 @@ function EditModal({ post, onClose, onSaved }) {
 
         {error && <p style={{ color: '#ef4444', marginTop: '12px' }}>{error}</p>}
 
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={onClose}
-            style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
-            Cancel
-          </button>
-          <button type="button" onClick={handleSave} disabled={saving}
-            style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
+        {confirmDelete ? (
+          <div style={{
+            marginTop: '24px', background: '#fef2f2', border: '2px solid #ef4444',
+            borderRadius: '12px', padding: '16px',
+          }}>
+            <p style={{ margin: '0 0 12px', fontWeight: '700', color: '#991b1b' }}>
+              Are you sure you want to delete this post? This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                style={{ padding: '8px 18px', border: '2px solid #6b7280', borderRadius: '8px', background: 'white', color: '#374151', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                style={{ padding: '8px 18px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: deleting ? 'not-allowed' : 'pointer', opacity: deleting ? 0.6 : 1 }}
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'space-between', alignItems: 'center' }}>
+            <button type="button" onClick={() => setConfirmDelete(true)}
+              style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>
+              Delete Post
+            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button type="button" onClick={onClose}
+                style={{ padding: '10px 20px', border: '2px solid #2774ae', borderRadius: '8px', background: 'white', color: '#2774ae', fontWeight: '700', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} disabled={saving}
+                style={{ padding: '10px 20px', background: '#2774ae', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -228,21 +296,30 @@ function MyPosts() {
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState(null);
   const [message, setMessage] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/posts/mine`, { credentials: 'include' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        setPosts(data);
+    // Check verification first, then load posts
+    fetch(`${API_URL}/auth/me`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data || !data.isVerified) {
+          window.location.href = '/dashboard';
+          return;
+        }
+        fetch(`${API_URL}/api/posts/mine`, { credentials: 'include' })
+          .then(async (res) => {
+            if (!res.ok) throw new Error();
+            const posts = await res.json();
+            setPosts(posts);
+          })
+          .catch(() => setMessage('Could not load your posts.'))
+          .finally(() => setLoading(false));
       })
-      .catch(() => setMessage('Could not load your posts.'))
-      .finally(() => setLoading(false));
+      .catch(() => { window.location.href = '/dashboard'; });
   }, []);
 
   async function handleDelete(postId) {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
-
     try {
       const res = await fetch(`${API_URL}/api/posts/${postId}`, {
         method: 'DELETE',
@@ -251,13 +328,21 @@ function MyPosts() {
 
       if (res.ok) {
         setPosts((prev) => prev.filter((p) => p._id !== postId));
+        setDeletingId(null);
       } else {
         const data = await res.json();
         setMessage(data.error || 'Failed to delete post.');
+        setDeletingId(null);
       }
     } catch {
       setMessage('Network error.');
+      setDeletingId(null);
     }
+  }
+
+  function handleModalDeleted(postId) {
+    setPosts((prev) => prev.filter((p) => p._id !== postId));
+    setEditingPost(null);
   }
 
   function handleSaved(updatedPost) {
@@ -291,7 +376,7 @@ function MyPosts() {
                 <h3>Schedule</h3>
                 {post.schedule?.map((item, i) => (
                   <p key={i} style={{ margin: '4px 0', textTransform: 'capitalize' }}>
-                    <strong>{DAY_DISPLAY[item.day] || item.day}:</strong> {item.startTime} – {item.endTime}
+                    <strong>{DAY_DISPLAY[item.day] || item.day}:</strong> {formatTime(item.startTime)} – {formatTime(item.endTime)}
                   </p>
                 ))}
               </div>
@@ -300,7 +385,7 @@ function MyPosts() {
                 <p><strong>Notes:</strong> {post.notes}</p>
               )}
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => setEditingPost(post)}
                   style={{
@@ -310,15 +395,34 @@ function MyPosts() {
                 >
                   Edit
                 </button>
-                <button
-                  onClick={() => handleDelete(post._id)}
-                  style={{
-                    padding: '8px 18px', background: '#ef4444', color: 'white',
-                    border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer',
-                  }}
-                >
-                  Delete
-                </button>
+
+                {deletingId === post._id ? (
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: '#fef2f2', border: '2px solid #ef4444', borderRadius: '8px', padding: '6px 12px' }}>
+                    <span style={{ fontWeight: '700', color: '#991b1b', fontSize: '14px' }}>Sure?</span>
+                    <button
+                      onClick={() => handleDelete(post._id)}
+                      style={{ padding: '4px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: '700', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      Yes, Delete
+                    </button>
+                    <button
+                      onClick={() => setDeletingId(null)}
+                      style={{ padding: '4px 12px', background: 'white', color: '#374151', border: '2px solid #6b7280', borderRadius: '6px', fontWeight: '700', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setDeletingId(post._id)}
+                    style={{
+                      padding: '8px 18px', background: '#ef4444', color: 'white',
+                      border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer',
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -330,6 +434,7 @@ function MyPosts() {
           post={editingPost}
           onClose={() => setEditingPost(null)}
           onSaved={handleSaved}
+          onDeleted={handleModalDeleted}
         />
       )}
     </main>
