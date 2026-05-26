@@ -71,4 +71,67 @@ router.post('/', requireAuth, async (req, res) =>{
     }
 });
 
+/*
+    TIANYI Code:
+*/
+
+// Delete a post created by the current user
+router.delete('/:id', requireAuth, async (req, res) =>{
+    try{
+        const post = await Post.findById(req.params.id);
+
+        if(!post){
+            return res.status(404).json({error: "Post not found."});
+        }
+
+        if(!post.owner.equals(req.user._id)){
+            return res.status(403).json({error: "Forbidden."});
+        }
+
+        await post.deleteOne();
+        res.json({success: true});
+
+    } catch(err){
+        console.error("Error deleting post:", err.message);
+        res.status(500).json({error: "Failed to delete post."});
+    }
+});
+
+// Update a post created by the current user
+router.patch('/:id', requireAuth, async (req, res) =>{
+    try{
+        const post = await Post.findById(req.params.id);
+
+        if(!post){
+            return res.status(404).json({error: "Post not found."});
+        }
+
+        if(!post.owner.equals(req.user._id)){
+            return res.status(403).json({error: "Forbidden."});
+        }
+
+        const { parkingStructure, schedule, notes } = req.body;
+
+        if(!parkingStructure){
+            return res.status(400).json({error: "Parking structure is required."});
+        }
+
+        if(!schedule || schedule.length === 0){
+            return res.status(400).json({error: "Schedule is required."});
+        }
+
+        post.parkingStructure = parkingStructure;
+        post.schedule = schedule;
+        post.notes = notes ?? '';
+
+        await post.save();
+        res.json(post);
+
+    } catch(err){
+        console.error("Error updating post:", err.message);
+        res.status(500).json({error: "Failed to update post."});
+    }
+});
+
+
 module.exports = router;
