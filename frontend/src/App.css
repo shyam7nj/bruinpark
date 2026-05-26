@@ -58,6 +58,7 @@ body {
   background: #f5f8fc;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -300,4 +301,91 @@ body {
 
 .post-schedule p {
   margin: 6px 0;
+}
+
+.post-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.post-edit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.post-edit-label select,
+.post-edit-label textarea {
+  padding: 8px;
+  border: 2px solid #2774ae;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.post-edit-label textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.post-edit-add-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.post-edit-add-row select,
+.post-edit-add-row input {
+  padding: 8px;
+  border: 2px solid #2774ae;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.post-edit-remove {
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: white;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-bar {
+  margin: 16px 0;
+  text-align: left;
+}
+
+.search-bar summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  color: #172033;
+}
+
+.search-dropdowns {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.search-dropdowns label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.search-dropdowns select {
+  padding: 10px;
+  border: 2px solid #2774ae;
+  border-radius: 8px;
+  font: inherit;
 }
