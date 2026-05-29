@@ -547,3 +547,22 @@ body {
   object-fit: contain;
   background: #f5f8fc;
 }
+
+.post-type-label {
+  display: inline-block;
+  margin: 4px 0 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.post-type-offering {
+  background: #e8f4ff;
+  color: #2774ae;
+}
+
+.post-type-looking {
+  background: #fff6cc;
+  color: #7a5a00;
+}

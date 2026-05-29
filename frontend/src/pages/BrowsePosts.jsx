@@ -25,6 +25,13 @@ function BrowsePosts() {
       });
   }, []);
 
+  function getPostTypeLabel(postType){
+    if(postType === "offering"){
+      return "Offering parking permit";
+    }
+    return "Looking for parking permit";
+  }
+
   return (
     <main className="browse-posts-page">
       <div className="browse-posts-card">
@@ -76,6 +83,10 @@ function BrowsePosts() {
             .map((post) => (
               <div className="post-card" key={post._id}>
                 <h2>{post.parkingStructure}</h2>
+                
+                <p className={`post-type-label ${post.postType === "offering" ? "post-type-offering" : "post-type-looking"}`}>
+                  {getPostTypeLabel(post.postType)}
+                </p>
 
                 <p>Posted by: {post.owner?.name || 'Unknown user'}</p>
 

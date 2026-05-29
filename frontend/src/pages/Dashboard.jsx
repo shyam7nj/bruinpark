@@ -121,6 +121,13 @@ function Dashboard(){
     return "You have not verified your parking permit yet.";
   }
 
+  function getPostTypeLabel(postType){
+    if(postType === "offering"){
+      return "Offering parking permit";
+    }
+    return "Looking for parking permit";
+  }
+
   if(status === "Loading"){
     return(
       <main className="dashboard-page">
@@ -286,6 +293,9 @@ function Dashboard(){
               <>
                 <h2>{post.parkingStructure}</h2>
 
+                <p className={`post-type-label ${post.postType === "offering" ? "post-type-offering" : "post-type-looking"}`}>
+                  {getPostTypeLabel(post.postType)}
+                </p>
                 <div className="post-schedule">
                   <h3>Schedule</h3>
 
