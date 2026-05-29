@@ -1,5 +1,5 @@
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 
 function CreatePost() {
@@ -10,6 +10,26 @@ function CreatePost() {
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/auth/me', {
+      credentials: "include",
+    }).then(async(response) => {
+      if(response.ok){
+        const data = await response.json();
+        setUser(data);
+      }
+    }).catch(() => {});
+  }, []);
+
+  function getPostTypeLabel(){
+    if(user?.verificationStatus === "verified"){
+      return "Because your permit is verified, this post will be marked as 'Offering parking permit'.";
+    }
+    return "Because your permit isn't verified, this post will be marked as 'Looking for parking permit'.";
+  }
+
 
   function addScheduleItem(){
     if(!day || !startTime || !endTime){
@@ -65,6 +85,11 @@ function CreatePost() {
           Tell BruinPark when you usually need parking so other commuters can
           find compatible schedules.
         </p>
+
+        <div className="create-post-type-note">
+          <h2>Post Type:</h2>
+          <p>{getPostTypeLabel()}</p>
+        </div>
 
         <form className="create-post-form" onSubmit={submitPost}>
           <label>
