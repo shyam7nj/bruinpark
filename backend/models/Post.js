@@ -31,6 +31,12 @@ const postSchema = new mongoose.Schema({
         required: true,
     },
 
+    postType: {
+        type: String,
+        enum: ["looking", "offering"],
+        default: "looking"
+    },
+
     parkingStructure: {
         type: String,
         required: true,

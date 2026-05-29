@@ -23,7 +23,13 @@ router.get('/me', (req, res) => {
     res.json({
         id: req.user.id,
         email: req.user.email,
-        name: req.user.name
+        name: req.user.name,
+        isAdmin: req.user.isAdmin,
+        verificationStatus: req.user.verificationStatus,
+        verificationImagePath: req.user.verificationImagePath,
+        verificationSubmitDate: req.user.verificationSubmitDate,
+        verificationReviewDate: req.user.verificationReviewDate,
+        verificationRejectionReason: req.user.verificationRejectionReason
     });
 });
 

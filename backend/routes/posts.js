@@ -56,8 +56,11 @@ router.post('/', requireAuth, async (req, res) =>{
             }
         }
         
+        const postType = req.user.verificationStatus === "verified" ? "offering" : "looking";
+
         const post = await Post.create({
             owner: req.user._id,
+            postType,
             parkingStructure,
             schedule,
             notes,
