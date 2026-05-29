@@ -8,10 +8,12 @@ const cors = require('cors');
 
 dotenv.config();
 
+// Route imports
 const passport = require('./config/passport');
 const authRouter = require('./routes/auth');
 const requireAuth = require('./middleware/requireAuth');
 const postRoutes = require('./routes/posts');
+const verifyRoutes = require('./routes/verify');
 
 const app = express();
 const port = 3001;
@@ -45,6 +47,7 @@ app.get(`/`, (req, res) => {
 // Mount: Put '/auth' in front of the routes from routes/auth.js
 app.use('/auth', authRouter);
 app.use('/api/posts', postRoutes);
+app.use('/api/verify', verifyRoutes);
 
 app.get('/api/protected', requireAuth, (req, res) => {
     res.json({message: `Hello ${req.user.name}, you are authenticated.`})
