@@ -20,6 +20,35 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
+    },
+
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+
+    verificationStatus: {
+        type: String,
+        enum: ["unverified", "pending", "verified", "rejected"],
+        default: "unverified"
+    },
+
+    verificationImagePath: {
+        type: String, 
+        default: "",
+    },
+
+    verificationSubmitDate: {
+        type: Date
+    },
+
+    verificationReviewDate: {
+        type: Date
+    },
+
+    verificationRejectionReason: {
+        type: String,
+        default: ""
     }
 
 }, { timestamps: true });
