@@ -468,3 +468,19 @@ body {
 .verify-message {
   font-weight: 700;
 }
+
+.verification-status-card {
+  margin-top: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+}
+
+.verification-status-card h2 {
+  margin: 0 0 12px;
+  color: #2774ae;
+}
+
+.verification-status-card p {
+  margin: 8px 0;
+}

@@ -105,6 +105,22 @@ function Dashboard(){
     window.location.href = '/';
   }
 
+  function getVerificationMessage(){
+    if(user.verificationStatus === "verified"){
+      return "Your parking permit has been verified.";
+    }
+
+    if(user.verificationStatus === "pending"){
+      return "Your permit verification is pending admin review.";
+    }
+
+    if(user.verificationStatus === "rejected"){
+      return user.verificationRejectionReason || "Your permit verification was rejected. Please upload a new screenshot.";
+    }
+
+    return "You have not verified your parking permit yet.";
+  }
+
   if(status === "Loading"){
     return(
       <main className="dashboard-page">
@@ -138,6 +154,25 @@ function Dashboard(){
 
         <p>Welcome to your Dashboard, {user.name}.</p>
         <p>Email: {user.email}</p>
+        
+        <div className="verification-status-card">
+          <h2>Permit Verification</h2>
+
+          <p>Status: {user.verificationStatus || "unverified"}</p>
+          <p>{getVerificationMessage()}</p>
+
+          {(user.verificationStatus === "unverified" || user.verificationStatus === "rejected" || !user.verificationStatus) && (
+            <a className="home-login-button" href="/verify">
+              Verify Permit
+            </a>
+          )}
+
+          {user.isAdmin && (
+            <a className="home-login-button" href="/admin/verify">
+              Review Permit Verifications
+            </a>
+          )}
+        </div>
 
         <div className="dashboard-buttons">
           <a className="home-login-button" href="/create-post">
