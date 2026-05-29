@@ -15,6 +15,8 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const requireAuth = require('../middleware/requireAuth');
+const User = require('../models/User');
+const requireAdmin = require('../middleware/requireAdmin');
 
 const router = express.Router();
 
@@ -80,6 +82,85 @@ router.post('/submit', requireAuth, upload.single('permitImage'), async (req, re
     catch(err){
         console.error("Error submitting permit verification:", err.message);
         res.status(500).json({error: "Failed to submit permit verification"});
+    }
+});
+
+// Admin Route: Get all users waiting for permit verification review
+router.get('/pending', requireAuth, requireAdmin, async (req, res) => {
+    try{
+        const pendingUsers = await User.find({verificationStatus: "pending"}).select('name email verificationStatus verificationImagePath verificationSubmitDate');
+        res.json(pendingUsers);
+    }
+    catch(err){
+        console.error("Error fetching pending verifications:", err.message);
+        res.status(500).json({error: "Failed to fetch pending verifications."});
+    }
+});
+
+// Admin Route: View an uploaded user screenshot
+router.get('/file/:filename', requireAuth, requireAdmin, (req, res) => {
+    try{
+        const filePath = path.join(uploadDirectory, req.params.filename);
+
+        if(!fs.existsSync(filePath)){
+            return res.status(404).json({error: "Verification screenshot not found."});
+        }
+
+        res.sendFile(filePath);
+    }
+    catch(err){
+        console.error("Error loading verification screenshot:", err.message);
+        res.status(500).json({error: "Failed to load verification screenshot."});
+    }
+});
+
+// Admin Route: Approve a user's permit verification
+router.patch('/:userId/approve', requireAuth, requireAdmin, async (req, res) => {
+    try{
+        const user = await User.findById(req.params.userId);
+        if(!user){
+            return res.status(404).json({error: "User not found."});
+        }
+
+        user.verificationStatus = "verified";
+        user.verificationReviewDate = new Date();
+        user.verificationRejectionReason = "";
+
+        await user.save();
+
+        res.json({
+            message: "User permit verification approved.",
+            user
+        });
+    }
+    catch(err){
+        console.error("Error approving verification", err.message);
+        res.status(500).json({error: "Failed to approve verification."});
+    }
+});
+
+// Admin Route: Reject a user's permit verification
+router.patch('/:userId/reject', requireAuth, requireAdmin, async (req, res) => {
+    try{
+        const user = await User.findById(req.params.userId);
+        if(!user){
+            return res.status(404).json({error: "User not found."});
+        }
+
+        user.verificationStatus = "rejected";
+        user.verificationReviewDate = new Date();
+        user.verificationRejectionReason = req.body.reason || "Permit verification was rejected.";
+
+        await user.save();
+        
+        res.json({
+            message: "User permit verification rejected",
+            user
+        });
+    }
+    catch(err){
+        console.error("Error rejecting verification", err.message);
+        res.status(500).json({error: "Failed to reject verification."});
     }
 });
 
