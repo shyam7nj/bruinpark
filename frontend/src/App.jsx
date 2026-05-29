@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import BrowsePosts from './pages/BrowsePosts';
 import Verify from './pages/Verify';
+import AdminVerify from './pages/AdminVerify';
 
 function App() {
   const path = window.location.pathname;
@@ -28,6 +29,10 @@ function App() {
 
   if (path === '/verify'){
     return <Verify />;
+  }
+
+  if (path === '/admin/verify'){
+    return <AdminVerify />;
   }
 
   return <Home />;
