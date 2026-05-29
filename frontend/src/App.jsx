@@ -5,6 +5,7 @@ import LoginFailed from './pages/LoginFailed';
 import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import BrowsePosts from './pages/BrowsePosts';
+import Verify from './pages/Verify';
 
 function App() {
   const path = window.location.pathname;
@@ -23,6 +24,10 @@ function App() {
 
   if (path === '/browse-posts') {
     return <BrowsePosts />;
+  }
+
+  if (path === '/verify'){
+    return <Verify />;
   }
 
   return <Home />;
