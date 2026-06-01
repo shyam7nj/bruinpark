@@ -14,6 +14,7 @@ const authRouter = require('./routes/auth');
 const requireAuth = require('./middleware/requireAuth');
 const postRoutes = require('./routes/posts');
 const verifyRoutes = require('./routes/verify');
+const messageRoutes = require('./routes/messages');
 
 const app = express();
 const port = 3001;
@@ -48,6 +49,7 @@ app.get(`/`, (req, res) => {
 app.use('/auth', authRouter);
 app.use('/api/posts', postRoutes);
 app.use('/api/verify', verifyRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.get('/api/protected', requireAuth, (req, res) => {
     res.json({message: `Hello ${req.user.name}, you are authenticated.`})
