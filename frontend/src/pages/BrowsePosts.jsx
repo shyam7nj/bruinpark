@@ -6,6 +6,9 @@ function BrowsePosts() {
   const [message, setMessage] = useState('Loading posts...');
   const [filterDay, setFilterDay] = useState('');
   const [filterStructure, setFilterStructure] = useState('');
+  const [activePostId, setActivePostId] = useState(null);
+  const [requestMessages, setRequestMessages] = useState({});
+  const [requestStatus, setRequestStatus] = useState({});
 
   useEffect(() => {
     fetch('http://localhost:3001/api/posts', {
@@ -30,6 +33,50 @@ function BrowsePosts() {
       return "Offering parking permit";
     }
     return "Looking for parking permit";
+  }
+
+  async function sendMessageRequest(postId){
+    const requestMessage = requestMessages[postId] || "";
+    try{
+      // POST: /api/messages
+      const response = await fetch("http://localhost:3001/api/messages", {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+         'Content-Type': 'application/json',
+        },
+       body: JSON.stringify({
+          postId, 
+          message: requestMessage,
+        }),
+      });
+
+      const data = await response.json();
+      if(response.ok){
+        setRequestStatus({
+          ...requestStatus,
+          [postId]: "Message request sent.",
+        });
+
+        setActivePostId(null);
+        setRequestMessages({
+          ...requestMessages,
+          [postId]: '',
+        });
+      }
+      else{
+        setRequestStatus({
+          ...requestStatus,
+          [postId]: data.error || "Failed to send message request."
+        });
+      }
+     }
+      catch(err){
+        setRequestStatus({
+          ...requestStatus,
+          [postId]: "Could not send message request."
+       })
+      }
   }
 
   return (
@@ -101,6 +148,39 @@ function BrowsePosts() {
                 </div>
 
                 <p>{post.notes}</p>
+                <div className="message-request-section">
+                  {activePostId === post._id ? (
+                    <>
+                      <label>
+                        Message Request
+                        <textarea value={requestMessages[post._id] || ''} onChange={(event) => setRequestMessages({
+                          ...requestMessages,
+                          [post._id]: event.target.value,
+                        })}
+                        placeholder="Add any extra details or questions for this commuter."
+                        />
+                      </label>
+                      <div className="post-card-actions">
+                        <button className="home-login-button" type="button" onClick={() => sendMessageRequest(post._id)}>
+                          Send Request
+                        </button>
+
+                        <button className="dashboard-logout-button" type="button" onClick={() => setActivePostId(null)}>
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <button className="home-login-button" type="button" onClick={() => setActivePostId(post._id)}>
+                      Send Message Request
+                    </button>
+                  )}
+                  {requestStatus[post._id] && (
+                    <p className="message-request-status">
+                      {requestStatus[post._id]}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
         </div>
