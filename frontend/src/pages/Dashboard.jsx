@@ -9,6 +9,8 @@ function Dashboard(){
   const [myPosts, setMyPosts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
+  const [incomingRequests, setIncomingRequests] = useState([]);
+  const [incomingMessage, setIncomingMessage] = useState("Loading incoming message requests...");
 
   useEffect(() => {
     fetch(`${API_URL}/auth/me`, {
@@ -37,6 +39,22 @@ function Dashboard(){
       return [];
     }).then(setMyPosts)
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/messages/incoming`, {
+      credentials: 'include',
+    }).then(async (response) => {
+      if(!response.ok){
+        throw new Error("Failed to load incoming message requests.");
+      }
+
+      const data = await response.json();
+      setIncomingRequests(data);
+      setIncomingMessage(data.length === 0 ? "No incoming message requests yet." : "");
+    }).catch(() => {
+      setIncomingMessage("Could not load incoming message requests.");
+    });
   }, []);
 
   function startEdit(post){
@@ -196,6 +214,43 @@ function Dashboard(){
         </button>
       </div>
 
+      <div className="dashboard-card" style={{marginTop: '24px', textAlign: 'left'}}>
+        <h2 style={{color: '#2774ae', margin: '0 0 16px'}}>Incoming Message Requests</h2>
+
+          {incomingMessage && <p>{incomingMessage}</p>}
+
+          {incomingRequests.map((request) => (
+            <div className="message-request-card" key={request._id}>
+              <h3>Request from {request.sender?.name || "Unknown user"}</h3>
+
+              <p>Email: {request.sender?.email || "No available email"}</p>
+              <p>Status: {request.status}</p>
+              
+              {request.createdAt && (
+                <p>Sent: {new Date(request.createdAt).toLocaleString()}</p>
+              )}
+
+              {request.post && (
+                <div className="post-schedule">
+                  <h3>{request.post.parkingStructure}</h3>
+                  <p className={`post-type-label ${request.post.postType === "offering" ? "post-type-offering": "post-type-looking"}`}>
+                    {getPostTypeLabel(request.post.postType)}
+                  </p>
+
+                  {request.post.schedule?.map((item, index) => (
+                    <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
+                      <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
+                    </p>
+                  ))}
+                </div>
+              )}
+              <p>
+                <strong>Message:</strong> {request.message || "No message included."}
+              </p>
+            </div>
+          ))}
+      </div>
+      
       <div className="dashboard-card" style={{marginTop: '24px', textAlign: 'left'}}>
         <h2 style={{color: '#2774ae', margin: '0 0 16px'}}>My Posts</h2>
 

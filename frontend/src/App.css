@@ -611,3 +611,19 @@ body {
   color: #172033;
   font-weight: 700;
 }
+
+.message-request-card {
+  margin-top: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+}
+
+.message-request-card h3 {
+  margin: 0 0 10px;
+  color: #2774ae;
+}
+
+.message-request-card p {
+  margin: 8px 0;
+}
