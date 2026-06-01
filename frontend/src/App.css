@@ -583,3 +583,31 @@ body {
 .create-post-type-note p {
   margin: 0;
 }
+
+.message-request-section {
+  margin-top: 16px;
+}
+
+.message-request-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.message-request-section textarea {
+  min-height: 90px;
+  padding: 10px;
+  border: 2px solid #2774ae;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+.message-request-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fff6cc;
+  border-radius: 8px;
+  color: #172033;
+  font-weight: 700;
+}
