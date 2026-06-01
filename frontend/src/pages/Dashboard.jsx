@@ -115,6 +115,20 @@ function Dashboard(){
     setMyPosts(myPosts.filter((post) => post._id !== postId));
   }
 
+  async function reviewMessageRequest(requestId, action){
+    const response = await fetch(`${API_URL}/api/messages/${requestId}/${action}`, {
+      method: 'PATCH',
+      credentials: 'include',
+    });
+
+    if(response.ok){
+      const data = await response.json();
+      setIncomingRequests(incomingRequests.map((request) => 
+        request._id === requestId ? data.messageRequest : request
+      ));
+    }
+  }
+
   async function logout(){
     await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
@@ -247,10 +261,20 @@ function Dashboard(){
               <p>
                 <strong>Message:</strong> {request.message || "No message included."}
               </p>
+              {request.status === "pending" && (
+                <div className="post-card-actions">
+                  <button className="home-login-button" type="button" onClick={() => reviewMessageRequest(request._id, "accept")}>
+                    Accept
+                  </button>
+                  <button className="dashboard-logout-button" type="button" onClick={() => reviewMessageRequest(request._id, "reject")}>
+                    Reject
+                  </button>
+                </div>
+              )}
             </div>
           ))}
       </div>
-      
+
       <div className="dashboard-card" style={{marginTop: '24px', textAlign: 'left'}}>
         <h2 style={{color: '#2774ae', margin: '0 0 16px'}}>My Posts</h2>
 
