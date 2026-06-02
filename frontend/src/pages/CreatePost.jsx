@@ -1,6 +1,7 @@
 
 import {useEffect, useState} from 'react';
-
+import { getCurrentUser } from '../api/authApi';
+import { createPost } from '../api/postsApi'
 
 function CreatePost() {
   const [parkingStructure, setParkingStructure] = useState('');
@@ -13,14 +14,7 @@ function CreatePost() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/auth/me', {
-      credentials: "include",
-    }).then(async(response) => {
-      if(response.ok){
-        const data = await response.json();
-        setUser(data);
-      }
-    }).catch(() => {});
+    getCurrentUser().then(setUser).catch(() => {});
   }, []);
 
   function getPostTypeLabel(){
@@ -46,33 +40,25 @@ function CreatePost() {
     setEndTime('');
   }
 
-  async function submitPost(event) {
-  event.preventDefault();
 
+  async function submitPost(event){
+  event.preventDefault();
   setMessage('');
 
-  const response = await fetch('http://localhost:3001/api/posts', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  try{
+    await createPost({
       parkingStructure,
       schedule,
       notes,
-    }),
-  });
+    });
 
-  if (response.ok) {
-    setMessage('Parking post created successfully!');
-
+    setMessage("Parking post successfully created.")
     setParkingStructure('');
     setNotes('');
     setSchedule([]);
-  } else {
-    const data = await response.json();
-    setMessage(data.error || 'Failed to create parking post.');
+  }
+  catch(err){
+    setMessage(err.message || "Failed to create parking post.")
   }
 }
 
