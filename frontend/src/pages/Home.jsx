@@ -15,7 +15,7 @@ function Home(){
           title="BruinPark"
           description="Find commuter students with compatible parking schedules, create and browse parking posts, and send message requests when you find a possible match."      
           actions={
-            <Button href={`${API_URL}/auth/google`} variant="secondary">
+            <Button href={`${API_URL}/auth/google`}>
               Log in with Google
             </Button>
           }
