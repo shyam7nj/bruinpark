@@ -1,7 +1,10 @@
 
 import {useEffect, useState} from 'react';
-
-const API_URL = "http://localhost:3001";
+import { API_URL } from '../api/client';
+import { getCurrentUser, logoutCurrentUser } from '../api/authApi';
+import { getUserPosts, editPost, deletePostById } from '../api/postsApi';
+import { getIncomingMessageRequests, reviewMessageRequest as reviewMessageRequestApi } from '../api/messagesApi';
+import { getPostTypeLabel, getVerificationMessage } from '../utils/labels';
 
 function Dashboard(){
   const [user, setUser] = useState(null);
@@ -13,14 +16,7 @@ function Dashboard(){
   const [incomingMessage, setIncomingMessage] = useState("Loading incoming message requests...");
 
   useEffect(() => {
-    fetch(`${API_URL}/auth/me`, {
-      credentials: "include",
-    }).then(async (response) => {
-      if(!response.ok){
-        throw new Error("Not Logged In");
-      }
-
-      const data = await response.json();
+    getCurrentUser().then((data) => {
       setUser(data);
       setStatus("Authenticated");
     }).catch(() => {
@@ -29,29 +25,14 @@ function Dashboard(){
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/posts/mine`, {
-      credentials: "include",
-    }).then((response) => {
-      if(response.ok){
-        return response.json();
-      }
-
-      return [];
-    }).then(setMyPosts)
-      .catch(() => {});
+    getUserPosts().then(setMyPosts).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/messages/incoming`, {
-      credentials: 'include',
-    }).then(async (response) => {
-      if(!response.ok){
-        throw new Error("Failed to load incoming message requests.");
-      }
 
-      const data = await response.json();
+  useEffect(() => {
+    getIncomingMessageRequests().then((data) => {
       setIncomingRequests(data);
-      setIncomingMessage(data.length === 0 ? "No incoming message requests yet." : "");
+      setIncomingMessage(data.length === 0 ? "No incoming message requests." : "");
     }).catch(() => {
       setIncomingMessage("Could not load incoming message requests.");
     });
@@ -86,78 +67,46 @@ function Dashboard(){
   }
 
   async function saveEdit(postId){
-    const response = await fetch(`${API_URL}/api/posts/${postId}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try{
+      const updated = await editPost(postId, {
         parkingStructure: editData.parkingStructure,
         schedule: editData.schedule,
         notes: editData.notes,
-      }),
-    });
+      });
 
-    if(response.ok){
-      const updated = await response.json();
       setMyPosts(myPosts.map((post) => post._id === postId ? updated : post));
       setEditingId(null);
+    }
+    catch(err){
+      console.error(err.message);
     }
   }
 
   async function deletePost(postId){
-    await fetch(`${API_URL}/api/posts/${postId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-
-    setMyPosts(myPosts.filter((post) => post._id !== postId));
+    try{
+      await deletePostById(postId);
+      setMyPosts(myPosts.filter((post) => post._id !== postId));
+    }
+    catch(err){
+      console.error(err.message);
+    }
   }
 
   async function reviewMessageRequest(requestId, action){
-    const response = await fetch(`${API_URL}/api/messages/${requestId}/${action}`, {
-      method: 'PATCH',
-      credentials: 'include',
-    });
-
-    if(response.ok){
-      const data = await response.json();
+    try{
+      const data = await reviewMessageRequestApi(requestId, action);
       setIncomingRequests(incomingRequests.map((request) => 
         request._id === requestId ? data.messageRequest : request
       ));
     }
+    catch(err){
+      console.error(err.message);
+    }
   }
 
   async function logout(){
-    await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    window.location.href = '/';
-  }
-
-  function getVerificationMessage(){
-    if(user.verificationStatus === "verified"){
-      return "Your parking permit has been verified.";
-    }
-
-    if(user.verificationStatus === "pending"){
-      return "Your permit verification is pending admin review.";
-    }
-
-    if(user.verificationStatus === "rejected"){
-      return user.verificationRejectionReason || "Your permit verification was rejected. Please upload a new screenshot.";
-    }
-
-    return "You have not verified your parking permit yet.";
-  }
-
-  function getPostTypeLabel(postType){
-    if(postType === "offering"){
-      return "Offering parking permit";
-    }
-    return "Looking for parking permit";
+    await logoutCurrentUser();
+    window.location.href = "/";
   }
 
   if(status === "Loading"){
@@ -198,7 +147,7 @@ function Dashboard(){
           <h2>Permit Verification</h2>
 
           <p>Status: {user.verificationStatus || "unverified"}</p>
-          <p>{getVerificationMessage()}</p>
+          <p>{getVerificationMessage(user)}</p>
 
           {(user.verificationStatus === "unverified" || user.verificationStatus === "rejected" || !user.verificationStatus) && (
             <a className="home-login-button" href="/verify">

@@ -1,7 +1,6 @@
 
 import {useState} from 'react';
-
-const API_URL = "http://localhost:3001";
+import { submitPermitVerification } from '../api/verifyApi';
 
 function Verify(){
     const [permitImage, setPermitImage] = useState(null);
@@ -23,19 +22,8 @@ function Verify(){
         formData.append('permitImage', permitImage);
 
         try{
-            const response = await fetch(`${API_URL}/api/verify/submit`,{
-                method: "POST",
-                credentials: "include",
-                body: formData,
-            });
-
-            const data = await response.json();
-
-            if(!response.ok){
-                throw new Error(data.error || "Failed to submit verification.");
-            }
-
-            setMessage(data.message || "Permit Verification submitted for review");
+            const data = await submitPermitVerification(formData);
+            setMessage(data.message || "Permit Verification submitted for review.");
             setPermitImage(null);
         }
         catch(err){
