@@ -116,7 +116,7 @@
   justify-content: center;
 
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 20px;
   border-radius: 10px;
   border: 1px solid transparent;
 
@@ -124,6 +124,7 @@
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .button-primary {

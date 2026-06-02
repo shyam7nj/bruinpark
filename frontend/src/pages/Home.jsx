@@ -1,25 +1,47 @@
-const API_URL = 'http://localhost:3001';
 
-function Home() {
-  return (
-    <main className="home-page">
-      <div className="home-card">
-        <h1 className="home-title">BruinPark</h1>
+import { API_URL } from '../api/client';
+import AppLayout from '../components/AppLayout';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import PageHeader from '../components/PageHeader';
 
-        <p className="home-description">
-          Find parking partners with compatible UCLA schedules.
-        </p>
+function Home(){
+  return(
+    <AppLayout>
+      <PageHeader
+        label="UCLA Commuter Parking"
+        title="Find parking partners with compatible schedules"
+        descrption="BruinPark helps UCLA commuter students connect with other each other to save money on parking permits."
+        actions={
+          <Button href={`${API_URL}/auth/google`}>
+            Log in with Google
+          </Button>
+        }
+      />
 
-        <p className="home-description">
-          Create a parking post, browse other students, and find someone whose
-          parking needs do not overlap with yours.
-        </p>
+      <div className="home-grid">
+        <Card>
+          <h2>Create a post</h2>
+          <p>
+            Share your parking structure and weekly schedule so other commuters can find compatible matches.
+          </p>
+        </Card>
 
-        <a className="home-login-button" href={`${API_URL}/auth/google`}>
-          Log in with Google
-        </a>
+        <Card>
+          <h2>Browse Matches</h2>
+          <p>
+            Filter posts by day and/or parking structure and look for students with parking needs that work with yours.
+          </p>
+        </Card>
+
+        <Card>
+          <h2>Request Contact</h2>
+          <p>
+            Send a message request first, then continue the conversation only after the other student accepts.
+          </p>
+        </Card>
       </div>
-    </main>
+    </AppLayout>
   );
 }
 

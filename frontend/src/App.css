@@ -627,3 +627,26 @@ body {
 .message-request-card p {
   margin: 8px 0;
 }
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.home-grid h2 {
+  margin: 0 0 10px;
+  color: #00598c;
+}
+
+.home-grid p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}
