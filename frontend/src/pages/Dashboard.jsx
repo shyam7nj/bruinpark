@@ -4,6 +4,7 @@ import { API_URL } from '../api/client';
 import { getCurrentUser, logoutCurrentUser } from '../api/authApi';
 import { getUserPosts, editPost, deletePostById } from '../api/postsApi';
 import { getIncomingMessageRequests, reviewMessageRequest as reviewMessageRequestApi } from '../api/messagesApi';
+import { getPostTypeLabel, getVerificationMessage } from '../utils/labels';
 
 function Dashboard(){
   const [user, setUser] = useState(null);
@@ -108,29 +109,6 @@ function Dashboard(){
     window.location.href = "/";
   }
 
-  function getVerificationMessage(){
-    if(user.verificationStatus === "verified"){
-      return "Your parking permit has been verified.";
-    }
-
-    if(user.verificationStatus === "pending"){
-      return "Your permit verification is pending admin review.";
-    }
-
-    if(user.verificationStatus === "rejected"){
-      return user.verificationRejectionReason || "Your permit verification was rejected. Please upload a new screenshot.";
-    }
-
-    return "You have not verified your parking permit yet.";
-  }
-
-  function getPostTypeLabel(postType){
-    if(postType === "offering"){
-      return "Offering parking permit";
-    }
-    return "Looking for parking permit";
-  }
-
   if(status === "Loading"){
     return(
       <main className="dashboard-page">
@@ -169,7 +147,7 @@ function Dashboard(){
           <h2>Permit Verification</h2>
 
           <p>Status: {user.verificationStatus || "unverified"}</p>
-          <p>{getVerificationMessage()}</p>
+          <p>{getVerificationMessage(user)}</p>
 
           {(user.verificationStatus === "unverified" || user.verificationStatus === "rejected" || !user.verificationStatus) && (
             <a className="home-login-button" href="/verify">

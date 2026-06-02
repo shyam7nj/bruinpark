@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getPosts } from '../api/postsApi';
 import { createMessageRequest } from '../api/messagesApi';
+import { getPostTypeLabel } from '../utils/labels';
 
 function BrowsePosts() {
   const [posts, setPosts] = useState([]);
@@ -21,14 +22,6 @@ function BrowsePosts() {
       setMessage("Could not load posts.");
     });
   }, []);
-
-  function getPostTypeLabel(postType){
-    if(postType === "offering"){
-      return "Offering parking permit";
-    }
-    return "Looking for parking permit";
-  }
-
 
   async function sendMessageRequest(postId){
     const requestMessage = requestMessages[postId] || "";
