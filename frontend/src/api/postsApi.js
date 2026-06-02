@@ -32,7 +32,7 @@ export function editPost(postId, postData){
     });
 }
 
-export function deletePost(postId){
+export function deletePostById(postId){
     return apiRequest(`/api/posts/${postId}`, {
         method: "DELETE",
     });
