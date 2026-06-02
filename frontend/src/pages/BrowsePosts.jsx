@@ -1,5 +1,7 @@
 
 import { useEffect, useState } from 'react';
+import { getPosts } from '../api/postsApi';
+import { createMessageRequest } from '../api/messagesApi';
 
 function BrowsePosts() {
   const [posts, setPosts] = useState([]);
@@ -10,22 +12,14 @@ function BrowsePosts() {
   const [requestMessages, setRequestMessages] = useState({});
   const [requestStatus, setRequestStatus] = useState({});
 
-  useEffect(() => {
-    fetch('http://localhost:3001/api/posts', {
-      credentials: 'include',
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error('Failed to load posts');
-        }
 
-        const data = await response.json();
-        setPosts(data);
-        setMessage('');
-      })
-      .catch(() => {
-        setMessage('Could not load posts.');
-      });
+  useEffect(() => {
+    getPosts().then((data) => {
+      setPosts(data);
+      setMessage('');
+    }).catch(() => {
+      setMessage("Could not load posts.");
+    });
   }, []);
 
   function getPostTypeLabel(postType){
@@ -35,48 +29,33 @@ function BrowsePosts() {
     return "Looking for parking permit";
   }
 
+
   async function sendMessageRequest(postId){
     const requestMessage = requestMessages[postId] || "";
     try{
-      // POST: /api/messages
-      const response = await fetch("http://localhost:3001/api/messages", {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-         'Content-Type': 'application/json',
-        },
-       body: JSON.stringify({
-          postId, 
-          message: requestMessage,
-        }),
+      await createMessageRequest({
+        postId,
+        message: requestMessage
       });
 
-      const data = await response.json();
-      if(response.ok){
-        setRequestStatus({
-          ...requestStatus,
-          [postId]: "Message request sent.",
-        });
+      setRequestStatus({
+        ...requestStatus,
+        [postId]: "Message request sent.",
+      });
 
-        setActivePostId(null);
-        setRequestMessages({
-          ...requestMessages,
-          [postId]: '',
-        });
-      }
-      else{
-        setRequestStatus({
-          ...requestStatus,
-          [postId]: data.error || "Failed to send message request."
-        });
-      }
-     }
-      catch(err){
-        setRequestStatus({
-          ...requestStatus,
-          [postId]: "Could not send message request."
-       })
-      }
+      setActivePostId(null);
+
+      setRequestMessages({
+        ...requestMessages,
+        [postId]: "",
+      });
+    }
+    catch(err){
+      setRequestStatus({
+        ...requestStatus,
+        [postId]: err.message || "Failed to send message request."
+      });
+    }
   }
 
   return (
