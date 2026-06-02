@@ -20,18 +20,18 @@ export async function submitPermitVerification(formData){
 }
 
 export function getPendingVerifications(){
-    return apiRequest("/api/verify/pending");
+    return apiRequest("/api/verify/pending", {}, "Failed to load pending verifications.");
 }
 
 export function approveVerification(userId){
     return apiRequest(`/api/verify/${userId}/approve`, {
         method: "PATCH"
-    });
+    }, "Failed to approve verification.");
 }
 
-export function rejectVerification(userId, rejectionReason){
+export function rejectVerification(userId, reason){
     return apiRequest(`/api/verify/${userId}/reject`, {
         method: "PATCH", 
-        body: JSON.stringify({ rejectionReason })
-    });
+        body: JSON.stringify({ reason })
+    }, "Failed to reject verification.");
 }

@@ -7,7 +7,7 @@
 
 const API_URL = "http://localhost:3001";
 
-export async function apiRequest(path, requestOptions = {}){
+export async function apiRequest(path, requestOptions = {}, backupErrorMessage = "Request Failed"){
     const response = await fetch(`${API_URL}${path}`, {
         credentials: 'include',
         ...requestOptions,
@@ -19,7 +19,7 @@ export async function apiRequest(path, requestOptions = {}){
 
     const data = await response.json().catch(() => null);
     if(!response.ok){
-        throw new Error(data?.error || "Request failed.");
+        throw new Error(data?.error || backupErrorMessage);
     }
     return data;
 }

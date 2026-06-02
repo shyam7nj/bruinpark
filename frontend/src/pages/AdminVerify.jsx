@@ -1,7 +1,7 @@
 
 import {useState, useEffect} from 'react';
-
-const API_URL = "http://localhost:3001";
+import { API_URL } from '../api/client';
+import { getPendingVerifications, approveVerification, rejectVerification } from '../api/verifyApi';
 
 function AdminVerify(){
     const [pendingUsers, setPendingUsers] = useState([]);
@@ -10,15 +10,7 @@ function AdminVerify(){
 
     async function fetchPendingUsers(){
         try{
-            const response = await fetch(`${API_URL}/api/verify/pending`, {
-                credentials: "include",
-            });
-
-            const data = await response.json();
-            if(!response.ok){
-                throw new Error(data.error || "Failed to load pending verifications.");
-            }
-
+            const data = await getPendingVerifications();
             setPendingUsers(data);
             setMessage(data.length === 0 ? "No pending permit verifications." : "");
         }
@@ -40,16 +32,7 @@ function AdminVerify(){
 
     async function approveUser(userId){
         try{
-            const response = await fetch(`${API_URL}/api/verify/${userId}/approve`, {
-                method: "PATCH",
-                credentials: "include",
-            });
-
-            const data = await response.json();
-            if(!response.ok){
-                throw new Error(data.error || "Failed to approve verification.");
-            }
-
+            const data = await approveVerification(userId);
             setMessage(data.message);
             setPendingUsers(pendingUsers.filter((user) => user._id !== userId));
         }
@@ -58,25 +41,13 @@ function AdminVerify(){
         }
     }
 
+
     async function rejectUser(userId){
         try{
-            const response = await fetch(`${API_URL}/api/verify/${userId}/reject`, {
-                method: "PATCH",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    reason: rejectReason[userId] || "Permit verification was rejected.", 
-                }),
-            });
+            const reason = rejectReason[userId] || "Permit Verification was rejected.";
+            const data = await rejectVerification(userId, reason);
 
-            const data = await response.json();
-            if(!response.ok){
-                throw new Error(data.error || "Failed to reject verification");
-            }
-
-            setMessage(data.message)
+            setMessage(data.message);
             setPendingUsers(pendingUsers.filter((user) => user._id !== userId));
         }
         catch(err){
