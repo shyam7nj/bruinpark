@@ -27,17 +27,25 @@ function Dashboard(){
 
 
   useEffect(() => {
-    getUserPosts().then(setMyPosts).catch(() => {});
-  }, []);
+    if(status !== "Authenticated"){
+      return;
+    }
+
+    getUserPosts().then(setMyPosts).catch((err) => {setActionError(err.message || "Could not load your posts.")});
+  }, [status]);
 
   useEffect(() => {
+    if(status !== "Authenticated"){
+      return;
+    }
+
     getIncomingMessageRequests().then((data) => {
       setIncomingRequests(data);
       setIncomingMessage(data.length === 0 ? "No incoming message requests" : "");
     }).catch(() => {
       setIncomingMessage("Could not load incoming message requests.");
     });
-  }, []);
+  }, [status]);
 
   function startEdit(post){
     setEditingId(post._id);
@@ -67,6 +75,16 @@ function Dashboard(){
   }
 
   async function saveEdit(postId){
+    if(!editData.parkingStructure){
+      setActionError("Please select a parking structure.");
+      return;
+    }
+
+    if(!editData.schedule || editData.schedule.length === 0){
+      setActionError("Please keep at least one schedule time.");
+      return;
+    }
+    
     setActionError("");
     try{
       const updated = await editPost(postId, {

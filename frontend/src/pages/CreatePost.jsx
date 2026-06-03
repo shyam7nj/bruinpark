@@ -18,9 +18,12 @@ function CreatePost() {
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
-  const {user} = useCurrentUser();
+  const {user, status} = useCurrentUser();
   
   function getPostTypeNote(){
+    if(status === "Loading"){
+      return "Checking your permit status...";
+    }
     if(user?.verificationStatus === "verified"){
       return "Because your permit is verified, this post will be marked as 'Offering parking permit'.";
     }
@@ -48,6 +51,15 @@ function CreatePost() {
     event.preventDefault();
     setMessage('');
 
+    if(!parkingStructure){
+      setMessage("Please select a parking structure.");
+      return;
+    }
+
+    if(schedule.length === 0){
+      setMessage("Please add at least one schedule item.");
+      return;
+    }
     try{
       await createPost({
         parkingStructure,

@@ -34,7 +34,6 @@ function BrowsePosts() {
   const filteredPosts = posts.filter((post) => !filterStructure || post.parkingStructure === filterStructure)
   .filter((post) => !filterDay || post.schedule?.some((item) => item.day === filterDay));
 
-  // U GOTTA EXPLAIN THIS BRO WTF.
   function getBadge(postType){
     if(postType === "offering"){
       return "info";
@@ -121,7 +120,7 @@ function BrowsePosts() {
             <div className="browse-post-header">
               <div>
                 <h2>{post.parkingStructure}</h2>
-                <p>Posted by {post.owner?.name || "Unkown user"}</p>
+                <p>Posted by {post.owner?.name || "Unknown user"}</p>
               </div>
 
               <Badge variant={getBadge(post.postType)}>
