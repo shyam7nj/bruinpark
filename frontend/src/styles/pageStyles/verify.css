@@ -1,0 +1,91 @@
+
+.verify-status-card {
+  max-width: 720px;
+  margin: 64px auto;
+  text-align: center;
+}
+
+.verify-status-card .page-header {
+  margin-bottom: 0;
+}
+
+.verify-status-card .page-header-row {
+  display: block;
+}
+
+.verify-status-card .page-header p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.verify-status-card .page-header-actions {
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.verify-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 18px;
+}
+
+.verify-form {
+  display: grid;
+  gap: 20px;
+}
+
+.verify-form label {
+  display: grid;
+  gap: 8px;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.verify-form input {
+  width: 100%;
+  border: 1px solid #b8c3cf;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17202a;
+  font: inherit;
+  padding: 12px;
+}
+
+.verify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.verify-message {
+  margin: 0;
+  color: #00598c;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.verify-instructions-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  background: #fff3a3;
+  border-color: #ffd100;
+}
+
+.verify-instructions-card h2 {
+  margin: 0;
+  color: #00598c;
+}
+
+.verify-instructions-card ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #38434f;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .verify-layout {
+    grid-template-columns: 1fr;
+  }
+}

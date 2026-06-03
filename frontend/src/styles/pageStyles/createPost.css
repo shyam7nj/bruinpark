@@ -1,0 +1,130 @@
+
+.create-post-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 18px;
+}
+
+.create-post-form {
+  display: grid;
+  gap: 20px;
+}
+
+.create-post-form label,
+.create-post-schedule-inputs label {
+  display: grid;
+  gap: 8px;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.create-post-form select,
+.create-post-form textarea,
+.create-post-form input {
+  width: 100%;
+  border: 1px solid #b8c3cf;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17202a;
+  font: inherit;
+}
+
+.create-post-form select,
+.create-post-form input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.create-post-form textarea {
+  min-height: 120px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.create-post-schedule-section {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #ffd100;
+  background: #fff3a3;
+}
+
+.create-post-schedule-section h2,
+.create-post-info-card h2 {
+  margin: 0;
+  color: #00598c;
+}
+
+.create-post-schedule-section p,
+.create-post-info-card p {
+  margin: 0;
+  color: #38434f;
+  line-height: 1.6;
+}
+
+.create-post-schedule-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.create-post-schedule-list {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #f3d34a;
+}
+
+.create-post-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.create-post-message {
+  margin: 0;
+  color: #00598c;
+  font-weight: 700;
+}
+
+.create-post-info-card {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  background: #ffffff;
+}
+
+.create-post-preview {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #d9e1ea;
+  background: #f8fafc;
+}
+
+.create-post-preview h3 {
+  margin: 0;
+  color: #00598c;
+}
+
+@media (max-width: 900px) {
+  .create-post-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .create-post-schedule-inputs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.create-post-info-card {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  background: #ffffff;
+  border-top: 4px solid #ffd100;
+}

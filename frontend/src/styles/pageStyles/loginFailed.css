@@ -1,0 +1,37 @@
+.login-failed-container {
+  max-width: 720px;
+  margin: 64px auto;
+}
+
+.login-failed-panel {
+  text-align: center;
+  background: #fff3a3;
+  border-color: #ffd100;
+  padding: 44px;
+}
+
+.login-failed-panel .page-header {
+  margin-bottom: 20px;
+}
+
+.login-failed-panel .page-header-row {
+  display: block;
+}
+
+.login-failed-panel .page-header p {
+  margin-left: auto;
+  margin-right: auto;
+  color: #38434f;
+}
+
+.login-failed-panel .page-header h1 {
+  color: #00598c;
+}
+
+.login-failed-help {
+  max-width: 520px;
+  margin: 0 auto 24px;
+  color: #38434f;
+  line-height: 1.6;
+  font-weight: 600;
+}

@@ -1,0 +1,264 @@
+
+.browse-filters-card {
+  margin-bottom: 28px;
+  background: #fff3a3;
+  border-color: #ffd100;
+}
+
+.browse-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.browse-filters label,
+.message-request-section label {
+  display: grid;
+  gap: 8px;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.browse-filters select,
+.message-request-section textarea {
+  width: 100%;
+  border: 1px solid #d9b900;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17202a;
+  font: inherit;
+}
+
+.browse-filters select {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.browse-message {
+  color: #4b5563;
+  font-weight: 700;
+}
+
+.browse-posts-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.browse-post-card {
+  display: grid;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.browse-post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.browse-post-header h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 1.55rem;
+}
+
+.browse-post-header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.browse-post-schedule {
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #d9e1ea;
+}
+
+.browse-post-schedule h3 {
+  margin: 0 0 10px;
+  color: #00598c;
+  font-size: 1.1rem;
+}
+
+.browse-post-schedule p {
+  margin: 6px 0;
+  color: #38434f;
+}
+
+.browse-post-notes {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.message-request-section {
+  display: grid;
+  gap: 12px;
+}
+
+.message-request-section .button {
+  justify-self: start;
+}
+
+.message-request-section textarea {
+  min-height: 100px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.browse-post-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.message-request-status {
+  margin: 0;
+  color: #00598c;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .browse-posts-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .browse-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .browse-post-header {
+    display: grid;
+  }
+}
+
+/* Match Results View */
+
+.match-results {
+  display: grid;
+  gap: 24px;
+}
+
+.match-results-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.match-results-header h2 {
+  margin: 0 0 6px;
+  color: #111827;
+}
+
+.match-results-header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+/* compatibility indicator shown on each result card */
+.match-score {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.match-score-perfect {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.match-score-partial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* match-finder modal */
+
+.match-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.match-modal {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  display: grid;
+  gap: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.match-modal h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #111827;
+}
+
+.match-modal p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.match-modal-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* scrollable list of the user's own posts to pick from */
+.match-post-list {
+  display: grid;
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.match-post-option {
+  text-align: left;
+  padding: 14px 16px;
+  border: 2px solid #d9e1ea;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  display: grid;
+  gap: 5px;
+  font: inherit;
+  transition: border-color 0.15s;
+}
+
+.match-post-option:hover {
+  border-color: #00598c;
+}
+
+.match-post-option.selected {
+  border-color: #00598c;
+  background: #e8f4fd;
+}
+
+.match-post-option strong {
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.match-post-option span {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
