@@ -4,7 +4,7 @@ BruinPark is a web application that helps UCLA commuter students save money by s
 
 
 ## Features:
-- UCLA only sign in via Google OAuth 2.0 ('@ucla.edu' and '@g.ucla.edu')
+- UCLA only sign in via Google OAuth 2.0 (`@ucla.edu` and `@g.ucla.edu`)
 - Create, edit and delete parking posts
 - Browse and filter posts based on day of the week and parking structure
 - Send message requests with other students
