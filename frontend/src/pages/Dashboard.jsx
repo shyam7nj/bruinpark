@@ -23,6 +23,7 @@ function Dashboard(){
   const [editData, setEditData] = useState({});
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [incomingMessage, setIncomingMessage] = useState("Loading incoming message requests...");
+  const [actionError, setActionError] = useState("");
 
 
   useEffect(() => {
@@ -66,6 +67,7 @@ function Dashboard(){
   }
 
   async function saveEdit(postId){
+    setActionError("");
     try{
       const updated = await editPost(postId, {
         parkingStructure: editData.parkingStructure,
@@ -77,27 +79,29 @@ function Dashboard(){
       setEditingId(null);
     }
     catch(err){ 
-      console.error(err.message);
+      setActionError(err.message || "Could not save changes.");
     }
   }
 
   async function deletePost(postId){
+    setActionError("");
     try{
       await deletePostById(postId);
       setMyPosts(myPosts.filter((post) => post._id !== postId));
     }
     catch(err){
-      console.error(err.message);
+      setActionError(err.message || "Could not delete post.");
     }
   }
 
   async function reviewMessageRequest(requestId, action){
+    setActionError("");
     try{
       const data = await reviewMessageRequestApi(requestId, action);
       setIncomingRequests(incomingRequests.map((request) => request._id === requestId ? data.messageRequest : request));
     }
     catch(err){
-      console.error(err.message);
+      setActionError(err.message || "Could not update message request.");
     }
   }
 
@@ -206,6 +210,10 @@ function Dashboard(){
           </div>
         </Card>
       </div>
+
+      {actionError && (
+        <p className="dashboard-action-error">{actionError}</p>
+      )}
 
     <div className="dashboard-main-grid">
       <Card className="dashboard-section-card">

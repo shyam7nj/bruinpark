@@ -85,7 +85,7 @@ function AdminVerify(){
 
                                 <label className="post-edit-label">
                                     Rejection Reason
-                                    <textarea value={rejectReason[pendingUser._id || ""]} onChange={(event) => setRejectReason({
+                                    <textarea value={rejectReason[pendingUser._id] || ""} onChange={(event) => setRejectReason({
                                         ...rejectReason,
                                         [pendingUser._id]: event.target.value,
                                     })}

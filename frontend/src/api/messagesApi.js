@@ -17,7 +17,7 @@ export function getIncomingMessageRequests(){
 }
 
 export function getSentMessageRequests(){
-    return apiRequest("api/messages/outgoing");
+    return apiRequest("/api/messages/outgoing");
 }
 
 export function reviewMessageRequest(requestId, action){
