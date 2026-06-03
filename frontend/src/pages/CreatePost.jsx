@@ -1,7 +1,14 @@
 
 import {useEffect, useState} from 'react';
 import { getCurrentUser } from '../api/authApi';
-import { createPost } from '../api/postsApi'
+import { createPost } from '../api/postsApi';
+
+import AppLayout from '../components/AppLayout';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import PageHeader from '../components/PageHeader';
+import '../styles/pageStyles/createPost.css';
+
 
 function CreatePost() {
   const [parkingStructure, setParkingStructure] = useState('');
@@ -17,7 +24,7 @@ function CreatePost() {
     getCurrentUser().then(setUser).catch(() => {});
   }, []);
 
-  function getPostTypeLabel(){
+  function getPostTypeNote(){
     if(user?.verificationStatus === "verified"){
       return "Because your permit is verified, this post will be marked as 'Offering parking permit'.";
     }
@@ -42,45 +49,43 @@ function CreatePost() {
 
 
   async function submitPost(event){
-  event.preventDefault();
-  setMessage('');
+    event.preventDefault();
+    setMessage('');
 
-  try{
-    await createPost({
-      parkingStructure,
-      schedule,
-      notes,
-    });
+    try{
+      await createPost({
+        parkingStructure,
+        schedule,
+        notes,
+      });
 
-    setMessage("Parking post successfully created.")
-    setParkingStructure('');
-    setNotes('');
-    setSchedule([]);
+      setMessage("Parking post successfully created.");
+      setParkingStructure('');
+      setNotes('');
+      setSchedule([]);
+      setDay('');
+      setStartTime('');
+      setEndTime('');
+    }
+    catch(err){
+      setMessage(err.message || "Failed to create parking post.");
+    }
   }
-  catch(err){
-    setMessage(err.message || "Failed to create parking post.")
-  }
-}
 
   return (
-    <main className="create-post-page">
-      <div className="create-post-card">
-        <h1>Create Parking Post</h1>
+  <AppLayout>
+    <PageHeader
+      label="Create Post"
+      title="Create a parking post"
+      description="Share your parking structure and weekly schedule so other commuters can find compatible matches."
+    />
 
-        <p>
-          Tell BruinPark when you usually need parking so other commuters can
-          find compatible schedules.
-        </p>
-
-        <div className="create-post-type-note">
-          <h2>Post Type:</h2>
-          <p>{getPostTypeLabel()}</p>
-        </div>
-
+    <div className="create-post-layout">
+      <Card className="create-post-form-card">
         <form className="create-post-form" onSubmit={submitPost}>
           <label>
             Parking Structure
-            
+
             <select
               value={parkingStructure}
               onChange={(event) => setParkingStructure(event.target.value)}
@@ -93,75 +98,101 @@ function CreatePost() {
               <option value="Structure 8">Structure 8</option>
             </select>
           </label>
-         <p>Selected: {parkingStructure || "None Yet"}</p>
+
           <label>
             Notes
-            <textarea value={notes} onChange={(event) => setNotes(event.target.value)}
+
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
               placeholder="Example: I usually stay late on Monday for club meetings."
             />
           </label>
-          <p>
-            Notes Preview: {notes || "No notes yet"}
-          </p>
 
-          <div className="schedule-section">
-  <h2>Weekly Schedule</h2>
+          <div className="create-post-schedule-section">
+            <div>
+              <h2>Weekly Schedule</h2>
+              <p>Add the times you expect to need parking.</p>
+            </div>
 
-  <p>Add the exact times you expect to need parking.</p>
+            <div className="create-post-schedule-inputs">
+              <label>
+                Day
 
-  <label>
-    Day
-    <select value={day} onChange={(event) => setDay(event.target.value)}>
-      <option value="">Select a day</option>
-      <option value="monday">Monday</option>
-      <option value="tuesday">Tuesday</option>
-      <option value="wednesday">Wednesday</option>
-      <option value="thursday">Thursday</option>
-      <option value="friday">Friday</option>
-    </select>
-  </label>
+                <select value={day} onChange={(event) => setDay(event.target.value)}>
+                  <option value="">Select a day</option>
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                </select>
+              </label>
 
-  <label>
-    Start Time
-    <input
-      type="time"
-      value={startTime}
-      onChange={(event) => setStartTime(event.target.value)}
-    />
-  </label>
+              <label>
+                Start Time
 
-  <label>
-    End Time
-    <input
-      type="time"
-      value={endTime}
-      onChange={(event) => setEndTime(event.target.value)}
-    />
-  </label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(event) => setStartTime(event.target.value)}
+                />
+              </label>
 
-  <button type="button" className="home-login-button" onClick={addScheduleItem}>
-    Add Time
-  </button>
+              <label>
+                End Time
 
-  <div className="schedule-list">
-    {schedule.length === 0 && <p>No schedule times added yet.</p>}
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(event) => setEndTime(event.target.value)}
+                />
+              </label>
 
-    {schedule.map((item, index) => (
-      <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-        {item.day}: {item.startTime} - {item.endTime}
-      </p>
-    ))}
-  </div>
-</div>
-    <button className="home-login-button" type="submit">
-  Create Post
-</button>
+              <Button type="button" variant="secondary" onClick={addScheduleItem}>
+                Add Time
+              </Button>
+            </div>
 
-{message && <p>{message}</p>}
+            <div className="create-post-schedule-list">
+              {schedule.length === 0 && (
+                <p>No schedule times added yet.</p>
+              )}
+
+              {schedule.map((item, index) => (
+                <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
+                  <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="create-post-actions">
+            <Button type="submit">
+              Create Post
+            </Button>
+          </div>
+
+          {message && (
+            <p className="create-post-message">{message}</p>
+          )}
         </form>
-      </div>
-    </main>
-  );
+      </Card>
+
+      <Card className="create-post-info-card">
+        <h2>Post Type</h2>
+        <p>{getPostTypeNote()}</p>
+
+        <div className="create-post-preview">
+          <h3>Preview</h3>
+          <p><strong>Structure:</strong> {parkingStructure || "None selected"}</p>
+          <p><strong>Schedule items:</strong> {schedule.length}</p>
+          <p><strong>Notes:</strong> {notes || "No notes yet"}</p>
+        </div>
+      </Card>
+    </div>
+  </AppLayout>
+);
 }
 
 export default CreatePost;

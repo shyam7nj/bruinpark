@@ -84,11 +84,11 @@ function BrowsePosts() {
             Day
             <select value={filterDay} onChange={(event) => setFilterDay(event.target.value)}>
               <option value="">All Days</option>
-              <option value="monday">monday</option>
-              <option value="tuesday">tuesday</option>
-              <option value="wednesday">wednesday</option>
-              <option value="Thursday">thursday</option>
-              <option value="Friday">friday</option>
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
             </select>
           </label>
 
