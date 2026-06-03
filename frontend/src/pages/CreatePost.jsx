@@ -1,6 +1,6 @@
 
-import {useEffect, useState} from 'react';
-import { getCurrentUser } from '../api/authApi';
+import { useState } from 'react';
+import useCurrentUser from '../hooks/useCurrentUser';
 import { createPost } from '../api/postsApi';
 
 import AppLayout from '../components/AppLayout';
@@ -18,12 +18,8 @@ function CreatePost() {
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    getCurrentUser().then(setUser).catch(() => {});
-  }, []);
-
+  const {user} = useCurrentUser();
+  
   function getPostTypeNote(){
     if(user?.verificationStatus === "verified"){
       return "Because your permit is verified, this post will be marked as 'Offering parking permit'.";

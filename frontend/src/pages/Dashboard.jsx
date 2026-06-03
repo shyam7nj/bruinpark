@@ -1,7 +1,8 @@
 
 import {useEffect, useState} from 'react';
 import { API_URL } from '../api/client';
-import { getCurrentUser, logoutCurrentUser } from '../api/authApi';
+import { logoutCurrentUser } from '../api/authApi';
+import useCurrentUser from '../hooks/useCurrentUser';
 import { getUserPosts, editPost, deletePostById } from '../api/postsApi';
 import { getIncomingMessageRequests, reviewMessageRequest as reviewMessageRequestApi } from '../api/messagesApi';
 import { getPostTypeLabel, getVerificationMessage } from '../utils/labels';
@@ -16,22 +17,13 @@ import '../styles/pageStyles/dashboard.css';
 
 
 function Dashboard(){
-  const [user, setUser] = useState(null);
-  const [status, setStatus] = useState("Loading");
+  const {user, status} = useCurrentUser();
   const [myPosts, setMyPosts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [incomingMessage, setIncomingMessage] = useState("Loading incoming message requests...");
 
-  useEffect(() => {
-    getCurrentUser().then((data) => {
-      setUser(data);
-      setStatus("Authenticated");
-    }).catch(() => {
-      setStatus("Unauthenticated");
-    });
-  }, []);
 
   useEffect(() => {
     getUserPosts().then(setMyPosts).catch(() => {});

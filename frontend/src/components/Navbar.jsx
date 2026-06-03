@@ -4,15 +4,11 @@
 */
 
 import { API_URL } from '../api/client';
-import { useEffect, useState } from 'react';
-import { getCurrentUser, logoutCurrentUser } from '../api/authApi';
+import { logoutCurrentUser } from '../api/authApi';
+import useCurrentUser from '../hooks/useCurrentUser';
 
 function Navbar(){
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        getCurrentUser().then(setUser).catch(() => setUser(null));
-    }, []);
+    const {user, setUser} = useCurrentUser();
 
     async function logout(){
         await logoutCurrentUser();
