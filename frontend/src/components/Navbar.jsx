@@ -4,8 +4,22 @@
 */
 
 import { API_URL } from '../api/client';
+import { useEffect, useState } from 'react';
+import { getCurrentUser, logoutCurrentUser } from '../api/authApi';
 
 function Navbar(){
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        getCurrentUser().then(setUser).catch(() => setUser(null));
+    }, []);
+
+    async function logout(){
+        await logoutCurrentUser();
+        setUser(null);
+        window.location.href = "/";
+    }
+
     return(
         <header className="navbar">
             <a className="navbar-home-page" href="/">
@@ -13,14 +27,24 @@ function Navbar(){
             </a>
 
             <nav className="navbar-links">
-                <a href="/browse-posts">Browse Posts</a>
-                <a href="/create-post">Create Post</a>
-                <a href="/dashboard">Dashboard</a>
+                {user && (
+                    <>
+                        <a href="/browse-posts">Browse Posts</a>
+                        <a href="/create-post">Create Post</a>
+                        <a href="/dashboard">Dashboard</a>
+                    </>
+                )}
             </nav>
 
-            <a className="navbar-login" href={`${API_URL}/auth/google`}>
-                Sign In
-            </a>
+            {user ? (
+                <button className="navbar-login" type="button" onClick={logout}>
+                    Log Out
+                </button>
+            ) : (
+                <a className="navbar-login" href={`${API_URL}/auth/google`}>
+                    Sign In
+                </a>
+            )}
         </header>
     );
 }

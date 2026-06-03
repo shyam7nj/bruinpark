@@ -46,19 +46,22 @@
   border-radius: 10px;
 }
 
-.navbar-links a:hover{
-    color: #00598c;
-    text-decoration: underline;
-    text-underline-offset: 6px;
-}
-
-.navbar-login:hover {
-    background: #f8fafc;
-    color: #00598c;
+.navbar-links a:hover {
+  color: #00598c;
+  text-decoration: underline;
+  text-underline-offset: 6px;
 }
 
 .navbar-login {
   border: 1px solid #d9e1ea;
+  background: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.navbar-login:hover {
+  background: #f8fafc;
+  color: #00598c;
 }
 
 
