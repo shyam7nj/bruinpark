@@ -1,0 +1,139 @@
+
+.browse-filters-card {
+  margin-bottom: 28px;
+  background: #fff3a3;
+  border-color: #ffd100;
+}
+
+.browse-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 18px;
+}
+
+.browse-filters label,
+.message-request-section label {
+  display: grid;
+  gap: 8px;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.browse-filters select,
+.message-request-section textarea {
+  width: 100%;
+  border: 1px solid #d9b900;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17202a;
+  font: inherit;
+}
+
+.browse-filters select {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.browse-message {
+  color: #4b5563;
+  font-weight: 700;
+}
+
+.browse-posts-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.browse-post-card {
+  display: grid;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.browse-post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.browse-post-header h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 1.55rem;
+}
+
+.browse-post-header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.browse-post-schedule {
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #d9e1ea;
+}
+
+.browse-post-schedule h3 {
+  margin: 0 0 10px;
+  color: #00598c;
+  font-size: 1.1rem;
+}
+
+.browse-post-schedule p {
+  margin: 6px 0;
+  color: #38434f;
+}
+
+.browse-post-notes {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.message-request-section {
+  display: grid;
+  gap: 12px;
+}
+
+.message-request-section .button {
+  justify-self: start;
+}
+
+.message-request-section textarea {
+  min-height: 100px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.browse-post-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.message-request-status {
+  margin: 0;
+  color: #00598c;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .browse-posts-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .browse-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .browse-post-header {
+    display: grid;
+  }
+}

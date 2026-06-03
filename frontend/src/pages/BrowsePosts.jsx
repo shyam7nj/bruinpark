@@ -4,6 +4,14 @@ import { getPosts } from '../api/postsApi';
 import { createMessageRequest } from '../api/messagesApi';
 import { getPostTypeLabel } from '../utils/labels';
 
+import AppLayout from '../components/AppLayout';
+import Badge from '../components/Badge';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import EmptyState from '../components/EmptyState';
+import PageHeader from '../components/PageHeader';
+import '../styles/pageStyles/browsePosts.css';
+
 function BrowsePosts() {
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState('Loading posts...');
@@ -22,6 +30,17 @@ function BrowsePosts() {
       setMessage("Could not load posts.");
     });
   }, []);
+
+  const filteredPosts = posts.filter((post) => !filterStructure || post.parkingStructure === filterStructure)
+  .filter((post) => !filterDay || post.schedule?.some((item) => item.day === filterDay));
+
+  // U GOTTA EXPLAIN THIS BRO WTF.
+  function getBadge(postType){
+    if(postType === "offering"){
+      return "info";
+    }
+    return "warning";
+  }
 
   async function sendMessageRequest(postId){
     const requestMessage = requestMessages[postId] || "";
@@ -52,112 +71,114 @@ function BrowsePosts() {
   }
 
   return (
-    <main className="browse-posts-page">
-      <div className="browse-posts-card">
-        <h1>Browse Parking Posts</h1>
+    <AppLayout>
+      <PageHeader
+        label="Parking Posts"
+        title="Browse Parking Posts"
+        description="View parking posts from other UCLA commuter students and look for compatible schedules."
+      />
 
-        <p>
-          View parking posts from other UCLA commuters and look for compatible
-          schedules.
-        </p>
+      <Card className="browse-filters-card">
+        <div className="browse-filters">
+          <label>
+            Day
+            <select value={filterDay} onChange={(event) => setFilterDay(event.target.value)}>
+              <option value="">All Days</option>
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
+            </select>
+          </label>
 
-        <details className="search-bar">
-          <summary>Search By...</summary>
-
-          <div className="search-dropdowns">
-            <label>
-              Day
-
-              <select value={filterDay} onChange={(event) => setFilterDay(event.target.value)}>
-                <option value="">All Days</option>
-                <option value="monday">Monday</option>
-                <option value="tuesday">Tuesday</option>
-                <option value="wednesday">Wednesday</option>
-                <option value="thursday">Thursday</option>
-                <option value="friday">Friday</option>
-              </select>
-            </label>
-
-            <label>
-              Parking Structure
-
-              <select value={filterStructure} onChange={(event) => setFilterStructure(event.target.value)}>
-                <option value="">All Structures</option>
-                <option value="Structure 2">Structure 2</option>
-                <option value="Structure 3">Structure 3</option>
-                <option value="Structure 4">Structure 4</option>
-                <option value="Structure 7">Structure 7</option>
-                <option value="Structure 8">Structure 8</option>
-              </select>
-            </label>
-          </div>
-        </details>
-
-        {message && <p>{message}</p>}
-
-        <div className="posts-list">
-          {posts
-            .filter((post) => !filterStructure || post.parkingStructure === filterStructure)
-            .filter((post) => !filterDay || post.schedule?.some((item) => item.day === filterDay))
-            .map((post) => (
-              <div className="post-card" key={post._id}>
-                <h2>{post.parkingStructure}</h2>
-                
-                <p className={`post-type-label ${post.postType === "offering" ? "post-type-offering" : "post-type-looking"}`}>
-                  {getPostTypeLabel(post.postType)}
-                </p>
-
-                <p>Posted by: {post.owner?.name || 'Unknown user'}</p>
-
-                <div className="post-schedule">
-                  <h3>Schedule</h3>
-
-                  {post.schedule?.map((item, index) => (
-                    <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-                      <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
-                    </p>
-                  ))}
-                </div>
-
-                <p>{post.notes}</p>
-                <div className="message-request-section">
-                  {activePostId === post._id ? (
-                    <>
-                      <label>
-                        Message Request
-                        <textarea value={requestMessages[post._id] || ''} onChange={(event) => setRequestMessages({
-                          ...requestMessages,
-                          [post._id]: event.target.value,
-                        })}
-                        placeholder="Add any extra details or questions for this commuter."
-                        />
-                      </label>
-                      <div className="post-card-actions">
-                        <button className="home-login-button" type="button" onClick={() => sendMessageRequest(post._id)}>
-                          Send Request
-                        </button>
-
-                        <button className="dashboard-logout-button" type="button" onClick={() => setActivePostId(null)}>
-                          Cancel
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <button className="home-login-button" type="button" onClick={() => setActivePostId(post._id)}>
-                      Send Message Request
-                    </button>
-                  )}
-                  {requestStatus[post._id] && (
-                    <p className="message-request-status">
-                      {requestStatus[post._id]}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
+          <label>
+            Parking Structure
+            <select value={filterStructure} onChange={(event) => setFilterStructure(event.target.value)}>
+              <option value="">All Structures</option>
+              <option value="Structure 2">Structure 2</option>
+              <option value="Structure 3">Structure 3</option>
+              <option value="Structure 4">Structure 4</option>
+              <option value="Structure 7">Structure 7</option>
+              <option value="Structure 8">Structure 8</option>
+            </select>
+          </label>
         </div>
+      </Card>
+
+      {message && <p className="browse-message">{message}</p>}
+
+      {!message && filteredPosts.length === 0 && (
+        <EmptyState
+          title="No matching posts found."
+          message="Try changing the days or parking structure."
+        />
+      )}
+
+      <div className="browse-posts-list">
+        {filteredPosts.map((post) => (
+          <Card className="browse-post-card" key={post._id}>
+            <div className="browse-post-header">
+              <div>
+                <h2>{post.parkingStructure}</h2>
+                <p>Posted by {post.owner?.name || "Unkown user"}</p>
+              </div>
+
+              <Badge variant={getBadge(post.postType)}>
+                {getPostTypeLabel(post.postType)}
+              </Badge>
+            </div>
+
+            <div className="browse-post-schedule">
+              <h3>Schedule</h3>
+
+              {post.schedule?.map((item, index) =>(
+                <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
+                  <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
+                </p>
+              ))}
+            </div>
+
+            {post.notes && (
+              <p className="browse-post-notes">{post.notes}</p>
+            )}
+            <div className="message-request-section">
+              {activePostId === post._id ? (
+                <>
+                  <label>
+                    Message Request
+                    <textarea value={requestMessages[post._id] || ""} onChange={(event) => setRequestMessages({
+                      ...requestMessages,
+                      [post._id]: event.target.value,
+                    })}
+                    placeholder="Add any extra details or questions for this person."
+                  />
+                  </label>
+
+                  <div className="browse-post-actions">
+                    <Button type="button" onClick={() => sendMessageRequest(post._id)}>
+                      Send Request
+                    </Button>
+
+                    <Button type="button" variant="secondary" onClick={() => setActivePostId(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                  </>
+              ) : (
+                <Button type="button" onClick={() => setActivePostId(post._id)}>
+                  Send Message Request
+                </Button>
+              )}
+
+              {requestStatus[post._id] && (
+                <p className="message-request-status">{requestStatus[post._id]}</p>
+              )}
+            </div>
+          </Card>
+        ))}
       </div>
-    </main>
+    </AppLayout>
   );
 }
 

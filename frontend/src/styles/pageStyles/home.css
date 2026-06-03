@@ -2,12 +2,13 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  margin-top: 36px;
+  margin-top: 48px;
 }
 
 .home-info-card {
   min-height: 170px;
-  border-top: 4px solid #ffd100;
+  background: #fff3a3;
+  border-color: #ffd100;
 }
 
 .home-info-card h2 {

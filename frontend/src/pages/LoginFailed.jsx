@@ -1,24 +1,30 @@
+import AppLayout from '../components/AppLayout';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import PageHeader from '../components/PageHeader';
+import '../styles/pageStyles/loginFailed.css';
 
 function LoginFailed(){
   return(
-    <main className="login-failed-page">
-      <div className="login-failed-card">
-        <h1>Login Failed</h1>
-        <p>
-          BruinPark is only available to students with a valid UCLA Google account. Please
-          login with your UCLA Google account. 
-        </p>
+    <AppLayout>
+      <div className="login-failed-container">
+        <Card className="login-failed-panel">
+          <PageHeader
+            label="Access Denied"
+            title="Login Failed"
+            description="BruinPark is only available to students with a valid UCLA Google account."
+          />
 
-        <p className="login-failed-help">
-          Use an email ending in @ucla.edu or @g.ucla.edu.
-        </p>
+          <p className="login-failed-help">
+            Use an email ending in @ucla.edu or @g.ucla.edu, then try again.
+          </p>
 
-        <a className="home-login-failed" href="/">
-          Back to Home
-        </a>
-
+          <Button href="/" variant="secondary">
+            Back to Home
+          </Button>
+        </Card>
       </div>
-    </main>
+    </AppLayout>
   );
 }
 
