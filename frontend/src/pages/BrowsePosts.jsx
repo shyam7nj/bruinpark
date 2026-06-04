@@ -9,6 +9,7 @@ import Badge from '../components/Badge';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import EmptyState from '../components/EmptyState';
+import FindMatchModal from '../components/FindMatchModal';
 import PageHeader from '../components/PageHeader';
 import '../styles/pageStyles/browsePosts.css';
 
@@ -210,76 +211,13 @@ function BrowsePosts() {
           </Card>
         ))}
       </div>
-      {/* find Potential Match modal */}
-      {matchModal && (
-        <div className="match-modal-backdrop" onClick={closeMatchModal}>
-          <div className="match-modal" onClick={(e) => e.stopPropagation()}>
-
-            {matchModal === 'loading' && (
-              <p className="match-modal-body">Looking up your posts…</p>
-            )}
-
-            {/* if user has no posts yet, ask them to create one first */}
-            {matchModal === 'no-posts' && (
-              <>
-                <h2 className="match-modal-title">No Post Found</h2>
-                <p className="match-modal-body">
-                  You need an active parking post before we can find you a match.
-                  Create one first and come back here!
-                </p>
-                <div className="match-modal-actions">
-                  {/* btn for redirecting them to create post*/}
-                  <Button type="button" onClick={() => { window.location.href = '/create-post'; }}>
-                    Create a Post
-                  </Button>
-                  <Button type="button" variant="secondary" onClick={closeMatchModal}>
-                    Cancel
-                  </Button>
-                </div>
-              </>
-            )}
-
-            {/* if User has posts, let them pick to base the match on */}
-            {matchModal === 'select' && (
-              <>
-                <h2 className="match-modal-title">Find a Match</h2>
-                <p className="match-modal-body">
-                  Select one of your posts below. We'll use it to find compatible matches.
-                </p>
-
-                <div className="match-modal-post-list">
-                  {myPosts.map((post) => (
-                    <label key={post._id} className={`match-modal-post-option${selectedPostId === post._id ? ' selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="matchPost"
-                        value={post._id}
-                        checked={selectedPostId === post._id}
-                        onChange={() => setSelectedPostId(post._id)}
-                      />
-                      <span className="match-modal-post-info">
-                        <strong>{post.parkingStructure}</strong>
-                        <span className="match-modal-post-type">{getPostTypeLabel(post.postType)}</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-
-                <div className="match-modal-actions">
-                  {/* continue is placeholder */}
-                  <Button type="button" disabled={!selectedPostId}>
-                    Continue
-                  </Button>
-                  <Button type="button" variant="secondary" onClick={closeMatchModal}>
-                    Cancel
-                  </Button>
-                </div>
-              </>
-            )}
-
-          </div>
-        </div>
-      )}
+      <FindMatchModal
+        matchModal={matchModal}
+        myPosts={myPosts}
+        selectedPostId={selectedPostId}
+        setSelectedPostId={setSelectedPostId}
+        closeMatchModal={closeMatchModal}
+      />
     </AppLayout>
   );
 }
