@@ -6,7 +6,8 @@
 import { apiRequest } from "./client";
 
 // Refactor: replaced manual fetch/JSON/error logic with apiRequest — FormData is safe to pass
-// directly since apiRequest only sets Content-Type: application/json when body is a string.
+// directly since apiRequest only sets Content-Type: application/json for string bodies,
+// leaving the browser free to set the correct multipart/form-data boundary for FormData.
 export function submitPermitVerification(formData){
     return apiRequest("/api/verify/submit", { method: "POST", body: formData });
 }

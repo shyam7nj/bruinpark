@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:3001/auth/test-login -H 'Content-Type: application/json' -d '{\"email\":\"test@g.ucla.edu\",\"name\":\"Test User\",\"isAdmin\":false,\"verificationStatus\":\"verified\"}')",
+      "Bash(npx playwright *)",
+      "Bash(MONGO_URI=mongodb+srv://bruinpark:cs35lspring2026@cluster0.qw7bbpd.mongodb.net/?appName=Cluster0 node -e ' *)"
+    ]
+  }
+}

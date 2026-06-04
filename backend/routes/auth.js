@@ -3,6 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const User = require('../models/User');
+const MessageRequest = require('../models/MessageRequest');
 
 
 // Start google login
@@ -81,6 +82,25 @@ router.get('/me', (req, res) => {
         verificationReviewDate: req.user.verificationReviewDate,
         verificationRejectionReason: req.user.verificationRejectionReason
     });
+});
+
+// Test cleanup route — deletes a pending message request by post ID and sender email.
+// Only active when ENABLE_TEST_LOGIN=true so it is never reachable in production.
+router.delete('/cleanup-message-request', async (req, res) => {
+    if(process.env.ENABLE_TEST_LOGIN !== "true"){
+        return res.status(404).json({error: "Not found"});
+    }
+    try{
+        const { postId, senderEmail } = req.body;
+        const sender = await User.findOne({ email: senderEmail });
+        if(sender){
+            await MessageRequest.deleteMany({ post: postId, sender: sender._id });
+        }
+        res.json({ success: true });
+    }
+    catch(err){
+        res.status(500).json({ error: "Cleanup failed" });
+    }
 });
 
 // handle logout

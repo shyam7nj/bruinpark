@@ -92,8 +92,9 @@ router.delete('/:id', requireAuth, async (req, res) =>{
             return res.status(403).json({error: "Forbidden."});
         }
 
-        // Clean up all message requests tied to this post so no orphaned documents remain.
-        await MessageRequest.deleteMany({ post: post._id });
+        // Only delete pending requests — accepted/rejected ones represent real connections
+        // between users and should persist (shown as "This post has been deleted." in the UI).
+        await MessageRequest.deleteMany({ post: post._id, status: "pending" });
         await post.deleteOne();
         res.json({success: true});
 

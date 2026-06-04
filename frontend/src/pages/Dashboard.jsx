@@ -322,12 +322,14 @@ function Dashboard(){
               </p>
 
               {request.status === "pending" && (
+                // If the linked post was deleted, disable Accept/Reject so the user
+                // cannot act on a request that no longer has a valid post behind it.
                 <div className="dashboard-card-actions">
-                  <Button type="button" onClick={() => reviewMessageRequest(request._id, "accept")}>
+                  <Button type="button" disabled={!request.post} onClick={() => reviewMessageRequest(request._id, "accept")}>
                     Accept
                   </Button>
 
-                  <Button type="button" variant="danger" onClick={() => reviewMessageRequest(request._id, "reject")}>
+                  <Button type="button" variant="danger" disabled={!request.post} onClick={() => reviewMessageRequest(request._id, "reject")}>
                     Reject
                   </Button>
                 </div>
