@@ -18,6 +18,7 @@ async function testLogin(page, overrides = {}){
     expect(response.ok()).toBeTruthy();
 }
 
+// Test: Log-in -> Create Post -> Check post appears on dashboard
 test("logged-in user can create a parking post and see it on the dashboard", async({page}) => {
     await testLogin(page, {
         email: "test-create@g.ucla.edu",
@@ -63,6 +64,7 @@ test("logged-in user can create a parking post and see it on the dashboard", asy
     await expect(createdPostCard).toContainText("18:00 - 20:00");
 });
 
+// Test: Log-in -> Attempt to create post with missing fields -> Show post wasn't completed, and warnings displayed
 test("create post form shows validation before submitting incomplete post", async ({page}) => {
     await testLogin(page, {
         email: "test-validation@g.ucla.edu",
@@ -80,4 +82,15 @@ test("create post form shows validation before submitting incomplete post", asyn
     await page.getByLabel(/parking structure/i).selectOption("Structure 7");
     await page.getByRole("button", {name: /^create post$/i}).click();
     await expect(page.getByText(/please add at least one schedule item/i)).toBeVisible();
+});
+
+// Test: Log in -> Create Post -> Confirm you can filter it on /browse-posts
+test("logged-in user can browse posts and filter by day and structure", async({page}) => {
+
+});
+
+
+// Test Log in (unverified permit) -> Go to permit verification page -> Page successfully loads form and instructions -> Upload attempt
+test("logged-in user can open permit verification page", async({page}) => {
+    
 });
