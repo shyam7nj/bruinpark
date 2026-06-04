@@ -128,6 +128,81 @@
   font-weight: 700;
 }
 
+/* find Potential Match modal */
+.match-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.match-modal {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: grid;
+  gap: 18px;
+}
+
+.match-modal-title {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #111827;
+}
+
+.match-modal-body {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* list of the user's own posts */
+.match-modal-post-list {
+  display: grid;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.match-modal-post-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid #d9e1ea;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.match-modal-post-option.selected {
+  border-color: #ffd100;
+  background: #fff9d6;
+}
+
+.match-modal-post-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.match-modal-post-type {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.match-modal-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 900px) {
   .browse-posts-list {
     grid-template-columns: 1fr;
