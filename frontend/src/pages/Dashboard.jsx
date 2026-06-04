@@ -16,6 +16,7 @@ import Card from '../components/Card';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyState from '../components/EmptyState';
 import PageHeader from '../components/PageHeader';
+import ScheduleList from '../components/ScheduleList';
 import '../styles/pageStyles/dashboard.css';
 
 
@@ -46,7 +47,7 @@ function Dashboard(){
 
     getIncomingMessageRequests().then((data) => {
       setIncomingRequests(data);
-      setIncomingMessage(data.length === 0 ? "No incoming message requests" : "");
+      setIncomingMessage(data.length === 0 ? "No incoming message requests at this time!" : "");
     }).catch(() => {
       setIncomingMessage("Could not load incoming message requests.");
     });
@@ -208,7 +209,7 @@ function Dashboard(){
 
           <div className="dashboard-profile-actions">
             <Button href="/create-post">
-              Create Post
+              Create Post + 
             </Button>
 
             <Button type="button" variant="danger" onClick={logout}>
@@ -297,7 +298,7 @@ function Dashboard(){
                 <p className="dashboard-muted-text">Sent {new Date(request.createdAt).toLocaleString()}</p>
               )}
 
-              {/* If the post was deleted after the request was sent, request.post will be null —
+              {/* If the post was deleted AFTER the request was sent, request.post will be null —
                   show a fallback instead of silently hiding the post block. */}
               {request.post ? (
                 <div className="dashboard-linked-post">
@@ -309,11 +310,8 @@ function Dashboard(){
                     </Badge>
                   </div>
 
-                  {request.post.schedule?.map((item, index) => (
-                    <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-                      <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
-                    </p>
-                  ))}
+                  {/* Refactor: replaced inline schedule map with shared ScheduleList component */}
+                  <ScheduleList schedule={request.post.schedule} />
                 </div>
               ) : (
                 <p className="dashboard-muted-text"><em>This post has been deleted.</em></p>
@@ -347,7 +345,7 @@ function Dashboard(){
           </div>
 
           <Button href="/create-post">
-            Create Post
+            Create Post +
           </Button>
         </div>
 
@@ -451,11 +449,8 @@ function Dashboard(){
 
                   <div className="dashboard-linked-post">
                     <h3>Schedule</h3>
-                    {post.schedule?.map((item, index) => (
-                      <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-                        <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
-                      </p>
-                    ))}
+                    {/* Refactor: replaced inline schedule map with shared ScheduleList component */}
+                    <ScheduleList schedule={post.schedule} />
                   </div>
 
                   {post.notes && (

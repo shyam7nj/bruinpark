@@ -10,6 +10,7 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import ConfirmModal from '../components/ConfirmModal';
 import PageHeader from '../components/PageHeader';
+import ScheduleList from '../components/ScheduleList';
 import '../styles/pageStyles/createPost.css';
 
 
@@ -182,11 +183,8 @@ function CreatePost() {
                 <p>No schedule times added yet.</p>
               )}
 
-              {schedule.map((item, index) => (
-                <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
-                  <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
-                </p>
-              ))}
+              {/* Refactor: replaced inline schedule map with shared ScheduleList component */}
+              <ScheduleList schedule={schedule} />
             </div>
           </div>
 

@@ -54,7 +54,7 @@
 
 .browse-post-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
   padding-top: 8px;
@@ -69,6 +69,12 @@
 .browse-post-header p {
   margin: 0;
   color: #4b5563;
+}
+
+/* Muted styling for the relative post age (e.g. "4 hours ago") */
+.browse-post-time {
+  opacity: 0.5;
+  font-size: 0.85rem;
 }
 
 .browse-post-schedule {
