@@ -12,7 +12,9 @@ export async function apiRequest(path, requestOptions = {}, backupErrorMessage =
         credentials: 'include',
         ...requestOptions,
         headers: {
-            ...(requestOptions.body ? {"Content-Type": "application/json"} : {}),
+            // Only set Content-Type for JSON string bodies — FormData must be left unset
+            // so the browser can attach the correct multipart/form-data boundary automatically.
+            ...(typeof requestOptions.body === 'string' ? {"Content-Type": "application/json"} : {}),
             ...requestOptions.headers,
         },
     });

@@ -42,13 +42,14 @@ test("logged-in user can create a parking post and see it on the dashboard", asy
     await page.getByLabel(/start time/i).fill("18:00");
     await page.getByLabel(/end time/i).fill("20:00");
 
-    // Add schedule time and check it appears in the preview
+    // Add schedule time and check it appears in the preview (times shown in 12h format)
     await page.getByRole("button", {name: /add time/i}).click();
     await expect(page.getByText(/thursday:/i)).toBeVisible();
-    await expect(page.getByText(/18:00 - 20:00/i)).toBeVisible();
+    await expect(page.getByText(/6:00 PM - 8:00 PM/i)).toBeVisible();
 
-    // Submit post form
+    // Submit post form — confirm the confirmation modal, then check success
     await page.getByRole('button', { name: /^create post$/i }).click();
+    await page.getByRole('button', { name: /^confirm$/i }).click();
 
     // Confirm success message pops up after creating the post
     await expect(page.getByText(/parking post successfully created/i)).toBeVisible();
@@ -66,7 +67,8 @@ test("logged-in user can create a parking post and see it on the dashboard", asy
 
     await expect(createdPostCard).toContainText("Structure 4");
     await expect(createdPostCard).toContainText("thursday");
-    await expect(createdPostCard).toContainText("18:00 - 20:00");
+    // Schedule times are displayed in 12h format
+    await expect(createdPostCard).toContainText("6:00 PM - 8:00 PM");
 });
 
 // Test: Log-in -> Attempt to create post with missing fields -> Show post wasn't completed, and warnings displayed
@@ -107,7 +109,9 @@ test("logged-in user can browse posts and filter by day and structure", async({p
     await page.getByLabel(/start time/i).fill("18:00");
     await page.getByLabel(/end time/i).fill("20:00");
     await page.getByRole("button", {name: /add time/i}).click();
+    // Confirm the confirmation modal before the post is created
     await page.getByRole("button", {name: /^create post$/i}).click();
+    await page.getByRole('button', { name: /^confirm$/i }).click();
     await expect(page.getByText(/parking post successfully created/i)).toBeVisible();
 
     await page.goto("/browse-posts");
@@ -123,7 +127,8 @@ test("logged-in user can browse posts and filter by day and structure", async({p
     await expect(matchingPost).toBeVisible();
     await expect(matchingPost).toContainText("Structure 4");
     await expect(matchingPost).toContainText("thursday");
-    await expect(matchingPost).toContainText("18:00 - 20:00");
+    // Schedule times are displayed in 12h format, NOT military time.
+    await expect(matchingPost).toContainText("6:00 PM - 8:00 PM");
 });
 
 
