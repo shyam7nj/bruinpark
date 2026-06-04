@@ -102,6 +102,10 @@ function BrowsePosts() {
               <option value="Structure 8">Structure 8</option>
             </select>
           </label>
+
+          <div className="browse-match-action">
+            <Button type="button" variant="secondary">Find Potential Match</Button>
+          </div>
         </div>
       </Card>
 

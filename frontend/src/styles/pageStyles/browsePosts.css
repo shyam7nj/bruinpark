@@ -7,8 +7,14 @@
 
 .browse-filters {
   display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, minmax(180px, 1fr)) auto;
   gap: 18px;
+  align-items: end;
+}
+
+.browse-match-action {
+  display: flex;
+  align-items: flex-end;
 }
 
 .browse-filters label,
