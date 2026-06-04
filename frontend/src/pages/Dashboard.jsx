@@ -13,6 +13,7 @@ import AppLayout from '../components/AppLayout';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ConfirmModal from '../components/ConfirmModal';
 import EmptyState from '../components/EmptyState';
 import PageHeader from '../components/PageHeader';
 import '../styles/pageStyles/dashboard.css';
@@ -26,6 +27,8 @@ function Dashboard(){
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [incomingMessage, setIncomingMessage] = useState("Loading incoming message requests...");
   const [actionError, setActionError] = useState("");
+  // confirm holds the message and onConfirm callback for the ConfirmModal, or null when closed.
+  const [confirm, setConfirm] = useState(null);
 
 
   useEffect(() => {
@@ -75,7 +78,7 @@ function Dashboard(){
     }
 
     // Fixed bug: adding a block that overlapped an existing one on the same day created
-    // duplicate/conflicting entries — now merged into a single block covering the full range.
+    // duplicate/conflicting entries — now merged into a single block covering the full min/max range.
     setEditData({
       ...editData,
       schedule: mergeSchedule(editData.schedule, { day: newDay, startTime: newStart, endTime: newEnd }),
@@ -113,6 +116,7 @@ function Dashboard(){
     }
   }
 
+  // Performs the actual deletion after the user confirms twice via the confirmation window.
   async function deletePost(postId){
     setActionError("");
     try{
@@ -122,6 +126,14 @@ function Dashboard(){
     catch(err){
       setActionError(err.message || "Could not delete post.");
     }
+  }
+
+  // Opens the confirmation window to prompt deletion before actually deleting a post.
+  function confirmDelete(post){
+    setConfirm({
+      message: `Delete your post for ${post.parkingStructure}? This can NOT be undone.`,
+      onConfirm: async () => { setConfirm(null); await deletePost(post._id); },
+    });
   }
 
   async function reviewMessageRequest(requestId, action){
@@ -172,6 +184,15 @@ function Dashboard(){
 
   return(
     <AppLayout>
+      {/* Rendered at the top level so it overlays the entire page when active */}
+      {confirm && (
+        <ConfirmModal
+          message={confirm.message}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
       <section className="dashboard-page-header">
         <PageHeader
           label="Dashboard"
@@ -276,7 +297,9 @@ function Dashboard(){
                 <p className="dashboard-muted-text">Sent {new Date(request.createdAt).toLocaleString()}</p>
               )}
 
-              {request.post && (
+              {/* If the post was deleted after the request was sent, request.post will be null —
+                  show a fallback instead of silently hiding the post block. */}
+              {request.post ? (
                 <div className="dashboard-linked-post">
                   <div className="dashboard-card-header">
                     <h3>{request.post.parkingStructure}</h3>
@@ -292,6 +315,8 @@ function Dashboard(){
                     </p>
                   ))}
                 </div>
+              ) : (
+                <p className="dashboard-muted-text"><em>This post has been deleted.</em></p>
               )}
 
               <p className="dashboard-request-message">
@@ -442,7 +467,7 @@ function Dashboard(){
                       Edit
                     </Button>
 
-                    <Button type="button" variant="danger" onClick={() => deletePost(post._id)}>
+                    <Button type="button" variant="danger" onClick={() => confirmDelete(post)}>
                       Delete
                     </Button>
                   </div>

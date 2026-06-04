@@ -4,7 +4,6 @@ import { getPosts } from '../api/postsApi';
 import { createMessageRequest } from '../api/messagesApi';
 import { getPostTypeLabel } from '../utils/labels';
 import { PARKING_STRUCTURES, WEEKDAYS } from '../utils/constants';
-import useCurrentUser from '../hooks/useCurrentUser';
 
 import AppLayout from '../components/AppLayout';
 import Badge from '../components/Badge';
@@ -15,7 +14,6 @@ import PageHeader from '../components/PageHeader';
 import '../styles/pageStyles/browsePosts.css';
 
 function BrowsePosts() {
-  const { user } = useCurrentUser();
   const [posts, setPosts] = useState([]);
   const [message, setMessage] = useState('Loading posts...');
   const [filterDay, setFilterDay] = useState('');
@@ -111,7 +109,7 @@ function BrowsePosts() {
                 <p>Posted by {post.owner?.name || "Unknown user"}</p>
               </div>
 
-              {/* "offering" maps to info (blue), anything else is warning (yellow) */}
+              {/* Refactor: "offering" maps to info (blue), anything else is warning (yellow) */}
               <Badge variant={post.postType === "offering" ? "info" : "warning"}>
                 {getPostTypeLabel(post.postType)}
               </Badge>
@@ -131,11 +129,7 @@ function BrowsePosts() {
               <p className="browse-post-notes">{post.notes}</p>
             )}
             <div className="message-request-section">
-              {/* Fixed bug: users could open and send a message request to their own post —
-                  now detects ownership by email and shows "This is your post." instead. */}
-              {post.owner?.email === user?.email ? (
-                <p className="message-request-status">This is your post.</p>
-              ) : activePostId === post._id ? (
+              {activePostId === post._id ? (
                 <>
                   <label>
                     Message Request

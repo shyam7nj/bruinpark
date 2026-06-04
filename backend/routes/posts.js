@@ -1,6 +1,7 @@
 
 const express = require('express');
 const Post = require('../models/Post');
+const MessageRequest = require('../models/MessageRequest');
 const requireAuth = require('../middleware/requireAuth');
 
 const router = express.Router();
@@ -91,6 +92,8 @@ router.delete('/:id', requireAuth, async (req, res) =>{
             return res.status(403).json({error: "Forbidden."});
         }
 
+        // Clean up all message requests tied to this post so no orphaned documents remain.
+        await MessageRequest.deleteMany({ post: post._id });
         await post.deleteOne();
         res.json({success: true});
 

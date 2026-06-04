@@ -3,6 +3,13 @@ import {useState, useEffect} from 'react';
 import { API_URL } from '../api/client';
 import { getPendingVerifications, approveVerification, rejectVerification } from '../api/verifyApi';
 
+// Refactor: imported shared components to replace raw elements with ad-hoc classnames,
+// keeping AdminVerify consistent with every other page in the app.
+import AppLayout from '../components/AppLayout';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import PageHeader from '../components/PageHeader';
+
 function AdminVerify(){
     const [pendingUsers, setPendingUsers] = useState([]);
     const [message, setMessage] = useState("Loading pending verification...");
@@ -22,13 +29,6 @@ function AdminVerify(){
     useEffect(() => {
         fetchPendingUsers();
     }, []);
-
-    function getFileName(imagePath){
-        if(!imagePath){
-            return "";
-        }
-        return imagePath.split('/').pop();
-    }
 
     async function approveUser(userId){
         try{
@@ -56,27 +56,31 @@ function AdminVerify(){
     }
 
     return(
-        <main className="admin-verify-page">
-            <div className="admin-verify-card">
-                <h1>Permit Verification Review</h1>
+        <AppLayout>
+            <PageHeader
+                label="Admin"
+                title="Permit Verification Review"
+                description="Review pending permit screenshots and approve or reject each user."
+            />
 
-                <p>Review pending permit screenshots and approve or reject each user.</p>
-
+            <Card className="admin-verify-card">
                 {message && <p className="verify-message">{message}</p>}
 
                 <div className="admin-verification-list">
                     {pendingUsers.map((pendingUser) => {
-                        const fileName = getFileName(pendingUser.verificationImagePath);
-                        
+                        // Refactor: inlined getFileName — it was a one-liner used in one place,
+                        // optional chaining handles the null case cleanly without a helper function.
+                        const fileName = pendingUser.verificationImagePath?.split('/').pop() ?? "";
+
                         return(
                             <div className="admin-verification-item" key={pendingUser._id}>
                                 <h2>{pendingUser.name}</h2>
 
                                 <p>Email: {pendingUser.email}</p>
-                                <p> Status: {pendingUser.verificationStatus}</p>
+                                <p>Status: {pendingUser.verificationStatus}</p>
 
                                 {pendingUser.verificationSubmitDate && (
-                                    <p> Submitted: {new Date(pendingUser.verificationSubmitDate).toLocaleString()}</p>
+                                    <p>Submitted: {new Date(pendingUser.verificationSubmitDate).toLocaleString()}</p>
                                 )}
 
                                 {fileName && (
@@ -93,23 +97,27 @@ function AdminVerify(){
                                 </label>
 
                                 <div className="post-card-actions">
-                                    <button className="home-login-button" onClick={() => approveUser(pendingUser._id)}>
+                                    {/* Refactor: replaced raw <button> elements with shared Button component
+                                        so styling is controlled centrally, not via ad-hoc classnames */}
+                                    <Button type="button" onClick={() => approveUser(pendingUser._id)}>
                                         Approve
-                                    </button>
+                                    </Button>
 
-                                    <button className="dashboard-logout-button" onClick={() => rejectUser(pendingUser._id)}>
+                                    <Button type="button" variant="danger" onClick={() => rejectUser(pendingUser._id)}>
                                         Reject
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
-                <a className="dashboard-logout-button" href="/dashboard">
-                    Back to Dashboard 
-                </a>
-            </div>
-        </main>
+
+                {/* Refactor: replaced raw <a> with shared Button component for consistent link styling */}
+                <Button href="/dashboard" variant="secondary">
+                    Back to Dashboard
+                </Button>
+            </Card>
+        </AppLayout>
     );
 }
 

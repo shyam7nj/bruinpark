@@ -8,6 +8,7 @@ import { mergeSchedule } from '../utils/scheduleUtils';
 import AppLayout from '../components/AppLayout';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ConfirmModal from '../components/ConfirmModal';
 import PageHeader from '../components/PageHeader';
 import '../styles/pageStyles/createPost.css';
 
@@ -20,6 +21,8 @@ function CreatePost() {
   const [endTime, setEndTime] = useState('');
   const [schedule, setSchedule] = useState([]);
   const [message, setMessage] = useState('');
+  // confirm holds the message and onConfirm callback for the ConfirmModal, or null when closed.
+  const [confirm, setConfirm] = useState(null);
   const {user, status} = useCurrentUser();
   
   function getPostTypeNote(){
@@ -55,26 +58,10 @@ function CreatePost() {
   }
 
 
-  async function submitPost(event){
-    event.preventDefault();
-    setMessage('');
-
-    if(!parkingStructure){
-      setMessage("Please select a parking structure.");
-      return;
-    }
-
-    if(schedule.length === 0){
-      setMessage("Please add at least one schedule item.");
-      return;
-    }
+  // Runs the actual API call after the user confirms.
+  async function doCreatePost(){
     try{
-      await createPost({
-        parkingStructure,
-        schedule,
-        notes,
-      });
-
+      await createPost({ parkingStructure, schedule, notes });
       setMessage("Parking post successfully created.");
       setParkingStructure('');
       setNotes('');
@@ -88,8 +75,36 @@ function CreatePost() {
     }
   }
 
+  // Validates the form, then opens the confirmation modal before submitting.
+  function submitPost(event){
+    event.preventDefault();
+    setMessage('');
+
+    if(!parkingStructure){
+      setMessage("Please select a parking structure.");
+      return;
+    }
+    if(schedule.length === 0){
+      setMessage("Please add at least one schedule item.");
+      return;
+    }
+
+    setConfirm({
+      message: `Create a post for ${parkingStructure} with ${schedule.length} schedule item${schedule.length !== 1 ? 's' : ''}?`,
+      onConfirm: async () => { setConfirm(null); await doCreatePost(); },
+    });
+  }
+
   return (
   <AppLayout>
+    {/* Rendered at the top level so it overlays the entire page when active */}
+    {confirm && (
+      <ConfirmModal
+        message={confirm.message}
+        onConfirm={confirm.onConfirm}
+        onCancel={() => setConfirm(null)}
+      />
+    )}
     <PageHeader
       label="Create Post"
       title="Create a parking post"
