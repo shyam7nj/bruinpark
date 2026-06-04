@@ -3,6 +3,8 @@ import { useState } from 'react';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { createPost } from '../api/postsApi';
 
+import { PARKING_STRUCTURES, WEEKDAYS } from '../utils/constants';
+import { mergeSchedule } from '../utils/scheduleUtils';
 import AppLayout from '../components/AppLayout';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -36,11 +38,17 @@ function CreatePost() {
       return;
     }
 
-    const newScheduleItem = {
-      day, startTime, endTime,
-    };
+    // Fixed bug: end time equal to or before start time (e.g. MON 1:00pm–12:00pm) was silently
+    // accepted — now rejected with an error message before the block is added.
+    if(endTime <= startTime){
+      setMessage("End time must be after start time.");
+      return;
+    }
 
-    setSchedule([...schedule, newScheduleItem]);
+    // Fixed bug: adding a block that overlapped an existing one on the same day created
+    // duplicate/conflicting entries — now merged into a single block covering the full min-max range.
+    setSchedule(prev => mergeSchedule(prev, { day, startTime, endTime }));
+    setMessage('');
     setDay('');
     setStartTime('');
     setEndTime('');
@@ -99,11 +107,7 @@ function CreatePost() {
               onChange={(event) => setParkingStructure(event.target.value)}
             >
               <option value="">Select a structure</option>
-              <option value="Structure 2">Structure 2</option>
-              <option value="Structure 3">Structure 3</option>
-              <option value="Structure 4">Structure 4</option>
-              <option value="Structure 7">Structure 7</option>
-              <option value="Structure 8">Structure 8</option>
+              {PARKING_STRUCTURES.map(s => <option key={s} value={s}>{s}</option>)} 
             </select>
           </label>
 
@@ -129,11 +133,7 @@ function CreatePost() {
 
                 <select value={day} onChange={(event) => setDay(event.target.value)}>
                   <option value="">Select a day</option>
-                  <option value="monday">Monday</option>
-                  <option value="tuesday">Tuesday</option>
-                  <option value="wednesday">Wednesday</option>
-                  <option value="thursday">Thursday</option>
-                  <option value="friday">Friday</option>
+                  {WEEKDAYS.map(d => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
                 </select>
               </label>
 

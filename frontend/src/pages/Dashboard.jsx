@@ -6,6 +6,8 @@ import useCurrentUser from '../hooks/useCurrentUser';
 import { getUserPosts, editPost, deletePostById } from '../api/postsApi';
 import { getIncomingMessageRequests, reviewMessageRequest as reviewMessageRequestApi } from '../api/messagesApi';
 import { getPostTypeLabel, getVerificationMessage } from '../utils/labels';
+import { PARKING_STRUCTURES, WEEKDAYS } from '../utils/constants';
+import { mergeSchedule } from '../utils/scheduleUtils';
 
 import AppLayout from '../components/AppLayout';
 import Badge from '../components/Badge';
@@ -65,13 +67,23 @@ function Dashboard(){
       return;
     }
 
+    // Fixed bug: end time equal to or before start time (e.g. 1:00pm–12:00pm) was silently
+    // accepted — now rejected with an error message before the block is added.
+    if(newEnd <= newStart){
+      setActionError("End time must be after start time.");
+      return;
+    }
+
+    // Fixed bug: adding a block that overlapped an existing one on the same day created
+    // duplicate/conflicting entries — now merged into a single block covering the full range.
     setEditData({
       ...editData,
-      schedule: [...editData.schedule, {day: newDay, startTime: newStart, endTime: newEnd}],
+      schedule: mergeSchedule(editData.schedule, { day: newDay, startTime: newStart, endTime: newEnd }),
       newDay: "",
       newStart: "",
       newEnd: "",
     });
+    setActionError("");
   }
 
   async function saveEdit(postId){
@@ -332,11 +344,7 @@ function Dashboard(){
                       value={editData.parkingStructure}
                       onChange={(event) => setEditData({ ...editData, parkingStructure: event.target.value })}
                     >
-                      <option value="Structure 2">Structure 2</option>
-                      <option value="Structure 3">Structure 3</option>
-                      <option value="Structure 4">Structure 4</option>
-                      <option value="Structure 7">Structure 7</option>
-                      <option value="Structure 8">Structure 8</option>
+                      {PARKING_STRUCTURES.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </label>
 
@@ -365,11 +373,7 @@ function Dashboard(){
                         onChange={(event) => setEditData({...editData, newDay: event.target.value})}
                       >
                         <option value="">Day</option>
-                        <option value="monday">Monday</option>
-                        <option value="tuesday">Tuesday</option>
-                        <option value="wednesday">Wednesday</option>
-                        <option value="thursday">Thursday</option>
-                        <option value="friday">Friday</option>
+                        {WEEKDAYS.map(d => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
                       </select>
 
                       <input

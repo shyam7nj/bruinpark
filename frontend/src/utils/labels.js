@@ -3,11 +3,14 @@
     Shared display-label helper functions for the frontend pages
 */
 
+// Refactor: replaced if-statement with a lookup table — add new post types here as a single entry.
+const POST_TYPE_LABELS = {
+    offering: "Offering parking permit",
+    looking:  "Looking for parking permit",
+};
+
 export function getPostTypeLabel(postType){
-    if(postType === "offering"){
-        return "Offering parking permit";
-    }
-    return "Looking for parking permit";
+    return POST_TYPE_LABELS[postType] ?? "Looking for parking permit";
 }
 
 export function getVerificationMessage(user){

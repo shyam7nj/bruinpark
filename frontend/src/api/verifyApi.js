@@ -3,20 +3,12 @@
     Frontend API functions for permit verification backend routes
 */
 
-import { API_URL, apiRequest } from "./client";
+import { apiRequest } from "./client";
 
-export async function submitPermitVerification(formData){
-    const response = await fetch(`${API_URL}/api/verify/submit`, {
-        method: "POST", 
-        credentials: "include", 
-        body: formData
-    });
-
-    const data = await response.json().catch(() => null);
-    if(!response.ok){
-        throw new Error(data?.error || "Failed to submit permit verification");
-    }
-    return data;
+// Refactor: replaced manual fetch/JSON/error logic with apiRequest — FormData is safe to pass
+// directly since apiRequest only sets Content-Type: application/json when body is a string.
+export function submitPermitVerification(formData){
+    return apiRequest("/api/verify/submit", { method: "POST", body: formData });
 }
 
 export function getPendingVerifications(){
