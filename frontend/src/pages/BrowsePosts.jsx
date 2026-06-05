@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { getPosts, editPost, deletePostById } from '../api/postsApi';
+import { getPosts, editPost, deletePostById, getUserPosts } from '../api/postsApi';
 import { createMessageRequest } from '../api/messagesApi';
 import { getPostTypeLabel } from '../utils/labels';
 import { PARKING_STRUCTURES, WEEKDAYS } from '../utils/constants';
@@ -14,6 +14,7 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import ConfirmModal from '../components/ConfirmModal';
 import EmptyState from '../components/EmptyState';
+import FindMatchModal from '../components/FindMatchModal';
 import PageHeader from '../components/PageHeader';
 import ScheduleList from '../components/ScheduleList';
 import '../styles/pageStyles/browsePosts.css';
@@ -36,6 +37,11 @@ function BrowsePosts() {
   // postError surfaces validation and API errors from edit/delete actions on own posts.
   const [postError, setPostError] = useState("");
 
+  //Match modal state: null = closed, 'loading' = fetching user posts,
+  //'no-posts' = user has no posts, 'select' = user picking which post to match from
+  const [matchModal, setMatchModal] = useState(null);
+  const [myPosts, setMyPosts] = useState([]);
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   useEffect(() => {
     getPosts().then((data) => {
@@ -133,6 +139,30 @@ function BrowsePosts() {
     });
   }
 
+  //fetch the current user's own posts
+  //if they have none, redirect them to create one first.
+  async function openMatchModal() {
+    setMatchModal('loading');
+    try {
+      const data = await getUserPosts();
+      if (!data || data.length === 0) {
+        setMatchModal('no-posts');
+      } else {
+        setMyPosts(data);
+        setSelectedPostId(null);
+        setMatchModal('select');
+      }
+    } catch {
+      setMatchModal('no-posts');
+    }
+  }
+
+  function closeMatchModal() {
+    setMatchModal(null);
+    setMyPosts([]);
+    setSelectedPostId(null);
+  }
+
   async function sendMessageRequest(postId){
     const requestMessage = requestMessages[postId] || "";
     try{
@@ -194,6 +224,10 @@ function BrowsePosts() {
               {PARKING_STRUCTURES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
+
+          <div className="browse-match-action">
+            <Button type="button" variant="secondary" onClick={openMatchModal}>Find Potential Match</Button>
+          </div>
         </div>
       </Card>
 
@@ -342,6 +376,15 @@ function BrowsePosts() {
           </Card>
         ))}
       </div>
+
+      <FindMatchModal
+        matchModal={matchModal}
+        myPosts={myPosts}
+        selectedPostId={selectedPostId}
+        setSelectedPostId={setSelectedPostId}
+        closeMatchModal={closeMatchModal}
+        posts={posts}
+      />
     </AppLayout>
   );
 }
