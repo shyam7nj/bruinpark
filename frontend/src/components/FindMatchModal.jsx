@@ -11,11 +11,7 @@ function timeToMinutes(t) {
   return h * 60 + m;
 }
 
-/*
- * Returns total overlapping minutes between two post schedules.
- * Skips a day early when either side has no entry — handles the
- * day-level check without a separate pass.
- */
+/* loops over days & time entries and returns total overlapping minutes */
 function computeOverlapMinutes(scheduleA, scheduleB) {
   const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
   let total = 0;
