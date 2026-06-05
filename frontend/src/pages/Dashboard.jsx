@@ -208,8 +208,8 @@ function Dashboard(){
           <p className="dashboard-email-pill">{user?.email}</p>
 
           <div className="dashboard-profile-actions">
-            <Button href="/create-post">
-              Create Post + 
+            <Button href="/browse-posts">
+              Browse Posts 
             </Button>
 
             <Button type="button" variant="danger" onClick={logout}>
