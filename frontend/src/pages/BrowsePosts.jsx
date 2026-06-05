@@ -156,7 +156,6 @@ function BrowsePosts() {
                 <h2>{post.parkingStructure}</h2>
                 <p>Posted by {post.owner?.name || "Unknown user"}</p>
               </div>
-
               <Badge variant={getBadge(post.postType)}>
                 {getPostTypeLabel(post.postType)}
               </Badge>
@@ -164,8 +163,7 @@ function BrowsePosts() {
 
             <div className="browse-post-schedule">
               <h3>Schedule</h3>
-
-              {post.schedule?.map((item, index) =>(
+              {post.schedule?.map((item, index) => (
                 <p key={`${item.day}-${item.startTime}-${item.endTime}-${index}`}>
                   <strong>{item.day}:</strong> {item.startTime} - {item.endTime}
                 </p>
@@ -175,35 +173,28 @@ function BrowsePosts() {
             {post.notes && (
               <p className="browse-post-notes">{post.notes}</p>
             )}
+
             <div className="message-request-section">
               {activePostId === post._id ? (
                 <>
                   <label>
                     Message Request
-                    <textarea value={requestMessages[post._id] || ""} onChange={(event) => setRequestMessages({
-                      ...requestMessages,
-                      [post._id]: event.target.value,
-                    })}
-                    placeholder="Add any extra details or questions for this person."
-                  />
+                    <textarea
+                      value={requestMessages[post._id] || ""}
+                      onChange={(event) => setRequestMessages({ ...requestMessages, [post._id]: event.target.value })}
+                      placeholder="Add any extra details or questions for this person."
+                    />
                   </label>
-
                   <div className="browse-post-actions">
-                    <Button type="button" onClick={() => sendMessageRequest(post._id)}>
-                      Send Request
-                    </Button>
-
-                    <Button type="button" variant="secondary" onClick={() => setActivePostId(null)}>
-                      Cancel
-                    </Button>
+                    <Button type="button" onClick={() => sendMessageRequest(post._id)}>Send Request</Button>
+                    <Button type="button" variant="secondary" onClick={() => setActivePostId(null)}>Cancel</Button>
                   </div>
-                  </>
+                </>
               ) : (
                 <Button type="button" onClick={() => setActivePostId(post._id)}>
                   Send Message Request
                 </Button>
               )}
-
               {requestStatus[post._id] && (
                 <p className="message-request-status">{requestStatus[post._id]}</p>
               )}
@@ -211,12 +202,14 @@ function BrowsePosts() {
           </Card>
         ))}
       </div>
+
       <FindMatchModal
         matchModal={matchModal}
         myPosts={myPosts}
         selectedPostId={selectedPostId}
         setSelectedPostId={setSelectedPostId}
         closeMatchModal={closeMatchModal}
+        posts={posts}
       />
     </AppLayout>
   );
