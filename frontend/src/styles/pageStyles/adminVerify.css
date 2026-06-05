@@ -1,0 +1,80 @@
+
+/* AdminVerify.jsx — permit verification review page.
+   Mirrors the shared theme in components.css and the other pageStyles files
+   (white cards, #00598c headings, #38434f body text, soft #d9e1ea borders). */
+
+.admin-review-card {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.admin-review-message {
+  margin: 0;
+  color: #00598c;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.admin-review-list {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-review-item {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid #d9e1ea;
+  border-radius: 14px;
+  background: #f8fafc;
+  text-align: left;
+}
+
+.admin-review-item h2 {
+  margin: 0;
+  color: #00598c;
+}
+
+.admin-review-item p {
+  margin: 0;
+  color: #38434f;
+  line-height: 1.6;
+}
+
+.admin-review-screenshot {
+  display: block;
+  width: 100%;
+  max-height: 600px;
+  margin: 6px 0;
+  border: 1px solid #d9e1ea;
+  border-radius: 12px;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.admin-review-reason {
+  display: grid;
+  gap: 8px;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.admin-review-reason textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid #b8c3cf;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17202a;
+  font: inherit;
+  resize: vertical;
+}
+
+.admin-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

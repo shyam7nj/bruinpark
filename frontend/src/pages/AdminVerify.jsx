@@ -9,6 +9,7 @@ import AppLayout from '../components/AppLayout';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import PageHeader from '../components/PageHeader';
+import '../styles/pageStyles/adminVerify.css';
 
 function AdminVerify(){
     const [pendingUsers, setPendingUsers] = useState([]);
@@ -63,17 +64,17 @@ function AdminVerify(){
                 description="Review pending permit screenshots and approve or reject each user."
             />
 
-            <Card className="admin-verify-card">
-                {message && <p className="verify-message">{message}</p>}
+            <Card className="admin-review-card">
+                {message && <p className="admin-review-message">{message}</p>}
 
-                <div className="admin-verification-list">
+                <div className="admin-review-list">
                     {pendingUsers.map((pendingUser) => {
                         // Refactor: inlined getFileName — it was a one-liner used in one place,
                         // optional chaining handles the null case cleanly without a helper function.
                         const fileName = pendingUser.verificationImagePath?.split('/').pop() ?? "";
 
                         return(
-                            <div className="admin-verification-item" key={pendingUser._id}>
+                            <div className="admin-review-item" key={pendingUser._id}>
                                 <h2>{pendingUser.name}</h2>
 
                                 <p>Email: {pendingUser.email}</p>
@@ -84,10 +85,10 @@ function AdminVerify(){
                                 )}
 
                                 {fileName && (
-                                    <img className="verification-review" src={`${API_URL}/api/verify/file/${fileName}`} alt={`Permit verification submitted by ${pendingUser.name}`}/>
+                                    <img className="admin-review-screenshot" src={`${API_URL}/api/verify/file/${fileName}`} alt={`Permit verification submitted by ${pendingUser.name}`}/>
                                 )}
 
-                                <label className="post-edit-label">
+                                <label className="admin-review-reason">
                                     Rejection Reason
                                     <textarea value={rejectReason[pendingUser._id] || ""} onChange={(event) => setRejectReason({
                                         ...rejectReason,
@@ -96,7 +97,7 @@ function AdminVerify(){
                                     placeholder="Optional reason to include if rejecting this submission" />
                                 </label>
 
-                                <div className="post-card-actions">
+                                <div className="admin-review-actions">
                                     {/* Refactor: replaced raw <button> elements with shared Button component
                                         so styling is controlled centrally, not via ad-hoc classnames */}
                                     <Button type="button" onClick={() => approveUser(pendingUser._id)}>
