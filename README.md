@@ -1,6 +1,6 @@
 # BruinPark
 
-BruinPark is a web application that helps UCLA commuter students save money by sharing parking permits, by matching users with other commuters with non-overlapping schedules. Users authenticate with their UCLA Google account, and can create a parking post to describe what structure their are assigned, what time they need to be on campus, and extra notes section for extra requirements. Students are able to send messages directly to each other within the app to further coordinate sharing a permit.
+BruinPark is a web application that helps UCLA commuter students save money by sharing parking permits, by matching users with other commuters with non-overlapping schedules. Users authenticate with their UCLA Google account, and can create a parking post to describe what structure their are assigned, what time they need to be on campus, and extra notes section for extra requirements. Students are able to send message requests to each other and accept or reject incoming requests.
 
 
 ## Features:
@@ -58,8 +58,8 @@ graph TB
 
   Google(["Google OAuth 2.0"])
 
+  UI -- "Google OAuth" --> AUTH
   UI -- "fetch · credentials: include" --> MW
-  MW --> AUTH
   MW --> POSTS
   MW --> MSG
   MW --> VERIFY
@@ -176,7 +176,7 @@ bruinpark/
 ```
 
 ## Prerequisites:
-1. Node.js v18 or higher
+1. Node.js v20.19 or higher
 2. npm
 3. MongoDB either locally on `mongodb://localhost:27017` or a Mongo atlas cluster (free)
 4. Google OAuth 2.0 credentials
@@ -184,8 +184,8 @@ bruinpark/
 ## Setup:
 1. Clone the repository
 ```bash
-git clone <https://github.com/shyam7nj/bruinpark.git>
-cd BruinPark
+git clone https://github.com/shyam7nj/bruinpark.git
+cd bruinpark
 ```
 
 2. Setup Google OAuth credentials
@@ -198,7 +198,7 @@ cd BruinPark
     - Under `Authorized redirect URIs` add: `http://localhost:3001/auth/google/callback`
     - Save a copy of `Client ID` and `Client Secret`
 
-3. Configure .env variables
+3. Configure .env variables (Note: Place .env in the backend folder)
 ```env
 GOOGLE_CLIENT_ID= <client ID from previous step>
 GOOGLE_CLIENT_SECRET= <client secret from previous step>
@@ -232,7 +232,42 @@ npm run dev
 - Open `http://localhost:5173` in whatever browser of your choice and login with your UCLA email
 
 
-7. (Optional) Access Admin Page
+7. Running E2E Playwright Tests
+
+The Playwright tests use a guarded test-only login route because Google OAuth cannot be automated directly. The route returns a 404 response unless `ENABLE_TEST_LOGIN` is enabled.
+
+1. Add the following variable to `backend/.env`:
+```env
+ENABLE_TEST_LOGIN=true
+```
+
+2. Start the backend in a terminal:
+```bash
+cd backend
+npm run dev
+```
+
+3. In another terminal, install the Playwright browser binaries. This only needs to be done once:
+```bash
+cd frontend
+npx playwright install
+```
+
+4. Run the complete E2E test suite:
+```bash
+npm run test:e2e
+```
+
+Playwright automatically starts or reuses the frontend development server at `http://localhost:5173`. The backend must already be running at `http://localhost:3001`. The tests run in Chromium, Firefox, and WebKit and cover authenticated post creation, form validation, browsing and filtering posts, and permit screenshot upload.
+
+To run the tests with Playwright's interactive interface:
+```bash
+npm run test:e2e:ui
+```
+
+After testing, remove `ENABLE_TEST_LOGIN` from `backend/.env` or set it to `false`.
+
+8. (Optional) Access Admin Page
 - The admin verificaiton page is only accessible to users with the `isAdmin` flag set to true, and must be done directly in the database.
 - Locate the collection that stores all the users in MongoDB. Then, manually edit `isAdmin` to true, and save. It will likely be in a folder called `users`.
 - Refresh and you should see the option to review permit verifications. 
