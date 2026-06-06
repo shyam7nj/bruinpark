@@ -232,7 +232,13 @@ npm run dev
 - Open `http://localhost:5173` in whatever browser of your choice and login with your UCLA email
 
 
-7. Running E2E Playwright Tests
+7. (Optional) Access Admin Page
+- The admin verificaiton page is only accessible to users with the `isAdmin` flag set to true, and must be done directly in the database.
+- Locate the collection that stores all the users in MongoDB. Then, manually edit `isAdmin` to true, and save. It will likely be in a folder called `users`.
+- Refresh and you should see the option to review permit verifications. 
+
+
+## Running E2E Playwright Tests
 
 The Playwright tests use a guarded test-only login route because Google OAuth cannot be automated directly. The route returns a 404 response unless `ENABLE_TEST_LOGIN` is enabled.
 
@@ -266,9 +272,4 @@ npm run test:e2e:ui
 ```
 
 After testing, remove `ENABLE_TEST_LOGIN` from `backend/.env` or set it to `false`.
-
-8. (Optional) Access Admin Page
-- The admin verificaiton page is only accessible to users with the `isAdmin` flag set to true, and must be done directly in the database.
-- Locate the collection that stores all the users in MongoDB. Then, manually edit `isAdmin` to true, and save. It will likely be in a folder called `users`.
-- Refresh and you should see the option to review permit verifications. 
 
